@@ -3,6 +3,7 @@
 Accuracy metric analysis helpers. 
 """
 import pandas as pd
+from pandas.core.groupby.generic import DataFrameGroupBy
 import torch
 import numpy as np
 from pathlib import Path
@@ -102,11 +103,11 @@ def dynamic_append_to_dict(some_dict: dict[str, list[Any]], key:str, val: Any) -
 
     return some_dict
 
-def form_path_on_mode(root_dir: str, extra: str, prefix: str, main_mode: list[str] = ["mean", "std"]) -> list[str]:
-    paths = []
-    for mode in main_mode:
+def form_paths_on_modes(root_dir: str, extra: str, prefix: str, summary_modes: list[str]) -> dict[str, str]:
+    paths = dict()
+    for mode in summary_modes:
         path_to_extra_mean = f"{root_dir}/runs_extra-{extra}_{mode}_{prefix}.parquet"
-        paths.append(path_to_extra_mean)
+        paths[mode] = path_to_extra_mean
 
     return paths
 
@@ -114,9 +115,27 @@ def check_extra_exists(path:str):
     exists = Path(path).exists()
     return exists 
 
+def upside_dev(series: pd.Series) -> float:
+    mean = series.mean()
+    vals_greater = series.filter(series > mean)
+    num_vals = series.count()
+    variance = ((np.square(vals_greater - mean).sum()) / num_vals)
+    std_dev = np.sqrt(variance)
+    std_dev = float(std_dev)
+    return std_dev
+
+def downside_dev(series: pd.Series) -> float:
+    mean = series.mean()
+    vals_smaller = series.filter(series < mean)
+    num_vals = series.count()
+    variance = ((np.square(vals_smaller - mean).sum()) / num_vals)
+    std_dev = np.sqrt(variance)
+    std_dev = float(std_dev)
+    return std_dev
+
 # TODO: Do coupled Muon, Adam rather, could plot in same, for now it is fine, for all. Specify options, but may use same.
 # If created agg skip over. 
-def summarize_runs_metric(summary_mode_extras: dict[Literal["epochs"] | Literal["cols"] | Literal["both"] | Literal["none"], Any], run_metrics_paths: list[Path], prefix:str):
+def summarize_runs_metric(summary_modes: list[str], summary_mode_extras: dict[Literal["epochs"] | Literal["cols"] | Literal["both"] | Literal["none"], Any], run_metrics_paths: list[Path], prefix:str):
     """ 
     This summarises any metrics across runs. 
     Regular summary is mean and std. 
@@ -126,10 +145,10 @@ def summarize_runs_metric(summary_mode_extras: dict[Literal["epochs"] | Literal[
     Ensure relevance otherwise nonsensical outputs may result. 
     Output is stored in the parent directory of the current path.  
 
-    # TODO: If desired to touch this further: Decouple subgroup logic from other extras, a similar but ultimately different pipeline of checks is required, best to start this macro decoupling for best progress. 
+    # TODO: If desired to revise this further: Decouple subgroup logic from other extras, a similar but ultimately different pipeline of checks is required, best to start this macro decoupling for best progress. 
     """   
     parent_dir = str(run_metrics_paths[0].parent.parent.resolve())
-  
+
     per_aggregator_store: dict[str, list[Any]] = {extra: list() for extra in summary_mode_extras}
     for metrics_path in run_metrics_paths:
         agg_df: pd.DataFrame = pd.DataFrame(np.arange(1)) # aggregated version
@@ -137,14 +156,6 @@ def summarize_runs_metric(summary_mode_extras: dict[Literal["epochs"] | Literal[
         data_df.columns.name = f"Classes"
         
         for extra, val in summary_mode_extras.items():
-            epochs_mode_paths = form_path_on_mode(root_dir=parent_dir, extra=extra, prefix=prefix)
-            all_mode_paths_exist = check_extra_exists(epochs_mode_paths[0]) and check_extra_exists(epochs_mode_paths[1]) # check mean and std versions
-            
-            if extra != "subgroup" and all_mode_paths_exist:
-                continue 
-            else: 
-                print(f"Extras of those known at compile time does not exist for: {parent_dir}/runs_extra-{extra}_mean_{prefix}.parquet \n Creating by aggregation...")
-
             if extra == "epochs" and val == True:
                 agg_df = mean_epochs(data_df=data_df) 
                 per_aggregator_store["epochs"].append(agg_df)
@@ -166,14 +177,6 @@ def summarize_runs_metric(summary_mode_extras: dict[Literal["epochs"] | Literal[
             where one exists yet is requested again).
             More is not done due to brittle nature of decided structure. 
             """
-            epochs_mode_paths = form_path_on_mode(root_dir=parent_dir, extra=f"{extra}_epochs", prefix=prefix)
-            steps_mode_paths = form_path_on_mode(root_dir=parent_dir, extra=f"{extra}_steps", prefix=prefix)
-            both_epochs_exist = check_extra_exists(epochs_mode_paths[0]) and check_extra_exists(epochs_mode_paths[1])
-            both_steps_exist = check_extra_exists(steps_mode_paths[0]) and check_extra_exists(steps_mode_paths[1])
-
-            if both_epochs_exist and both_steps_exist:
-                continue 
-
             if extra == "subgroup" and val is not None: 
                 def intercept_acc_grps():
                     counts_df = pd.read_parquet(metrics_path.parent / "train_actual_class_counts.parquet").T
@@ -206,15 +209,33 @@ def summarize_runs_metric(summary_mode_extras: dict[Literal["epochs"] | Literal[
         if len(dfs_list) == 0:
             # print(f"Extra exists for: {parent_dir}/runs_extra-{extra}_mean_{prefix}.parquet \n Aborting aggregation and store ...")
             continue 
-        final_mode_paths = form_path_on_mode(root_dir=parent_dir, extra=extra, prefix=prefix)
+        final_mode_paths = form_paths_on_modes(root_dir=parent_dir, extra=extra, prefix=prefix, summary_modes=summary_modes)
 
         df_all = pd.concat(dfs_list)
         assert type(df_all) is pd.DataFrame, f"List of type {type(df_all)} for extra {extra} could not be aggregated into pd.Dataframe"
-        runs_mean_df = df_all.groupby(level=-1).mean()
-        runs_std_df = df_all.groupby(level=-1).std()
+        
+        preagg_splits = df_all.groupby(level=-1)
+        assert type(preagg_splits) is DataFrameGroupBy, f"{type(preagg_splits)} is not expected DataFrameGroupBy"
 
-        runs_mean_df.to_parquet(final_mode_paths[0]) # Decide how to print later, do not plot separately yet for now, generic plot method will have more flexibility
-        runs_std_df.to_parquet(final_mode_paths[1])
+        if "mean" in summary_modes:
+            runs_mean_df = preagg_splits.mean()
+            runs_mean_df.to_parquet(final_mode_paths["mean"])
+
+        if "std" in summary_modes:
+            runs_std_df = preagg_splits.std()
+            runs_std_df.to_parquet(final_mode_paths["std"])
+
+        if "upside" in summary_modes:
+            runs_upside_dev = preagg_splits.agg(upside_dev)
+            runs_upside_dev.to_parquet(final_mode_paths["upside_dev"])
+
+        if "downside" in summary_modes:
+            runs_downside_dev = preagg_splits.agg(downside_dev)
+            runs_downside_dev.to_parquet(final_mode_paths["downside_dev"])
+
+        if "skewness" in summary_modes:
+            runs_skewness = preagg_splits.skew()
+            runs_skewness.to_parquet(final_mode_paths["skewness"])
 
 if __name__ == "__main__":
     pass

@@ -7,7 +7,7 @@ from src.class_imbalance_ratios.analysis.summarise_metrics import summarize_runs
 from src.class_imbalance_ratios.analysis.needed_paths import cls_imb_s_outputs_dir, cls_imb_l_outputs_dir
 from src.class_imbalance_ratios.analysis.needed_names import corr_store_names
 
-def agg_save_metrics(outputs_dir: Path, run_paths_info: list[dict[str, Any]], version_dir: str, limit: int | None = 1) -> None:
+def agg_save_metrics(summary_modes:list[str], outputs_dir: Path, run_paths_info: list[dict[str, Any]], version_dir: str, limit: int | None = 1) -> None:
     """ 
     Pass in list of patterns. and aggregation options, which are looped over for optional number of times. 
     """
@@ -21,7 +21,7 @@ def agg_save_metrics(outputs_dir: Path, run_paths_info: list[dict[str, Any]], ve
             # Get all csv file path matches to custom name for both cs metrics
                 paths = sorted(v_dir.rglob(info["paths"], case_sensitive=False))
                 if len(paths) > 0:
-                    summarize_runs_metric(summary_mode_extras=info["summary_mode_extras"], run_metrics_paths=paths, prefix=info["prefix"])
+                    summarize_runs_metric(summary_modes=summary_modes, summary_mode_extras=info["summary_mode_extras"], run_metrics_paths=paths, prefix=info["prefix"])
                 else:
                     raise LookupError(f"Length of paths found is {len(paths)}==0, which is not valid.")
             
@@ -35,7 +35,9 @@ def summarize_all(dir: Path):
     Generate non-core metrics from .parquet core files. 
     This operates over run directories to form different summary metrics. 
     """
-
+    SUMMARY_MODES: list[str] = ["mean", "std", "upside_dev", "downside_dev", "skewness"]
+    subset_summary_modes = SUMMARY_MODES[2:]
+    
     print("=========== STORING SUMMARY GRADIENT CORRELATION METRICS ===========")
     relative_paths_info = [
         dict(
@@ -66,7 +68,7 @@ def summarize_all(dir: Path):
         outputs_dir=dir, 
         version_dir="multijob/R*", 
         limit=None,
-
+        summary_modes=subset_summary_modes,
         run_paths_info=relative_paths_info
     )
 
@@ -114,6 +116,7 @@ def summarize_all(dir: Path):
         outputs_dir=dir, 
         version_dir="multijob/R*", 
         limit=None,
+        summary_modes=subset_summary_modes,
         run_paths_info=relative_paths_info
         
     )
@@ -148,6 +151,7 @@ def summarize_all(dir: Path):
         outputs_dir=dir, 
         version_dir="multijob/R*", 
         limit=None,
+        summary_modes=subset_summary_modes,
         run_paths_info=relative_paths_info
     )
 

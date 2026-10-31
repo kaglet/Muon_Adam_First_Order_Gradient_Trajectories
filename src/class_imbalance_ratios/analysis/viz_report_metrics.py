@@ -115,7 +115,7 @@ def viz_lone_metrics(mode:str, outputs_dir: Path, run_paths_info: list[dict[str,
         assert type(mngr) is LonePlotManager, ""
 
         fig, ax = mngr.viz_cols_in_one()
-        save_dir = f"{str(outputs_dir.resolve())}/report/{mode}/{mngr._plot_options.names["version"]}/"
+        save_dir = f"{str(outputs_dir.resolve())}/report/{mode.lower()}/{mngr._plot_options.names["version"]}/"
         os.makedirs(save_dir, exist_ok=True)
         # Directory path should ensure required uniqueness settings 
         fig.savefig(f"{save_dir}/lone_{final_fig_name.replace(" ", "_").lower()}.png") 
