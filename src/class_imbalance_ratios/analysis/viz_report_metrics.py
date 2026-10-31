@@ -97,7 +97,7 @@ def viz_lone_metrics(mode:str, outputs_dir: Path, run_paths_info: list[dict[str,
                 names = get_mix_match_names(mode, final_fig_name, experim_dir, path, v_dir)
                 metric_df.rename(columns={"Filler":names.metric_name}, inplace=True)
 
-                options = LonePlotOptions(plot_cycler=plot_cycler_settings, use_prop_cycle=names.use_prop_cycle, use_cols=names.unique_cols, version=names.version, train_split=names.train_split, final_fig_name=names.final_fig_name, mode=names.mode, optim_name=names.optimizer_name, base_size=8, x_label=names.x_label, y_label=names.y_label)
+                options = LonePlotOptions(plot_cycler=plot_cycler_settings, use_cols=names.unique_cols, version=names.version, train_split=names.train_split, final_fig_name=names.final_fig_name, mode=names.mode, optim_name=names.optimizer_name, base_size=8, x_label=names.x_label, y_label=names.y_label)
                 assert type(options) is LonePlotOptions
 
                 plots_manager = LonePlotManager(metric_df=metric_df, plt_options=options)
@@ -107,14 +107,14 @@ def viz_lone_metrics(mode:str, outputs_dir: Path, run_paths_info: list[dict[str,
                 else:
                     used_manager = figax_store[i]
                     assert type(used_manager) is LonePlotManager, ""
-                    plots_manager.overwrite_figax(figax=used_manager.lone_figax)
+                    plots_manager.overwrite_fig_ax_n(fig_ax_n=used_manager.fig_ax_n)
 
                 plots_managers.append(plots_manager)
 
     for i, mngr in enumerate(plots_managers):
         assert type(mngr) is LonePlotManager, ""
 
-        fig, ax = mngr.viz_cols_in_one()
+        fig, ax = mngr.viz_cols_in_ax_n()
         save_dir = f"{str(outputs_dir.resolve())}/report/{mode.lower()}/{mngr._plot_options.names["version"]}/"
         os.makedirs(save_dir, exist_ok=True)
         # Directory path should ensure required uniqueness settings 
@@ -146,7 +146,7 @@ def viz_grid_metrics(mode:str, outputs_dir: Path, run_paths_info: list[dict[str,
 
                 names = get_mix_match_names(mode, final_fig_name, experim_dir, path, v_dir)
 
-                options = GridPlotOptions(plot_cycler=plot_cycler_settings, use_prop_cycle=names.use_prop_cycle, use_cols=names.unique_cols, version=names.version, train_split=names.train_split, final_fig_name=names.final_fig_name, mode=names.mode, optim_name=names.optimizer_name, base_size=8, x_label=names.x_label, y_label=names.y_label, grid_cols_num=5)
+                options = GridPlotOptions(plot_cycler=plot_cycler_settings, use_cols=names.unique_cols, version=names.version, train_split=names.train_split, final_fig_name=names.final_fig_name, mode=names.mode, optim_name=names.optimizer_name, base_size=8, x_label=names.x_label, y_label=names.y_label, grid_cols_num=5)
                 assert type(options) is GridPlotOptions
 
                 plots_manager = GridPlotsmanager(metric_df=metric_df, plt_options=options, version=v_dir.stem)

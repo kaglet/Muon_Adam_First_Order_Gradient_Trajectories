@@ -1,5 +1,8 @@
+from dataclasses import dataclass
 import math
 from typing import Any, Tuple
+
+from abc import ABC, abstractmethod
 
 from matplotlib.axes import Axes
 from matplotlib.figure import Figure
@@ -11,56 +14,81 @@ import matplotlib as mpl
 import matplotlib.ticker as ticker
 
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
+from pandas import DataFrame
 
-class LonePlotOptions():
-    def __init__(self, plot_cycler: dict | None, use_prop_cycle: bool, use_cols: bool, train_split: str, version:str, x_label: str, y_label:str, final_fig_name: str, mode: str, optim_name:str, title_y_offset:float = 0.01, font_size: int = 200, dpi: int = 400, base_size: int= 4) -> None:
-        self.title_y_offset = title_y_offset
-        self.fontsize = font_size
-        self.dpi = dpi
-        self._base_size: int = base_size
-        self._use_cols = use_cols
-        self._use_prop_cycle = use_prop_cycle
-        self._plot_cycler = plot_cycler
-        self.names = dict(train_split=train_split, x_label = x_label, y_label = y_label, optim_name=optim_name, mode=mode, final_fig_name=final_fig_name, version=version)
+@dataclass
+class PlotOptions():
+    base_size: float 
+    use_cols: bool 
+    plot_cycler: dict[str, list] | None
+    train_split: str 
+    y_label: str 
+    x_label: str 
+    optim_name: str 
+    mode: str 
+    version: str 
+    final_fig_name: str 
 
-class GridPlotOptions(LonePlotOptions):
-    def __init__(self, plot_cycler: dict | None, use_prop_cycle: bool, use_cols: bool, train_split:str, version:str, final_fig_name: str, mode: str, optim_name:str, x_label:str, y_label:str, grid_cols_num: int, title_y_offset: float = 1, font_size: int = 200, dpi: int = 400, base_size: int = 8) -> None:
-        super().__init__(plot_cycler=plot_cycler, use_prop_cycle=use_prop_cycle, use_cols=use_cols, train_split=train_split, version=version, optim_name=optim_name, mode=mode, final_fig_name=final_fig_name, x_label=x_label, y_label=y_label, title_y_offset=title_y_offset, font_size=font_size, dpi=dpi, base_size=base_size)
-        self.grid_cols_num: int = grid_cols_num
+    def __post_init__(self) -> None:
+        self.names: dict[str, Any] = dict(train_split=self.train_split, x_label = self.x_label, y_label = self.y_label, optim_name=self.optim_name, mode=self.mode, final_fig_name=self.final_fig_name, version=self.version)
 
-class LonePlotManager():
-    def __init__(self, metric_df: pd.DataFrame, plt_options: LonePlotOptions) -> None:
+@dataclass
+class LonePlotOptions(PlotOptions):
+    pass 
+
+@dataclass
+class GridPlotOptions(PlotOptions):
+    grid_cols_num: int
+
+class PlotManager(ABC):
+    def __init__(self, metric_df: pd.DataFrame, plt_options: PlotOptions) -> None:
         self._metric_df = metric_df
         self._plot_options = plt_options
-        self._lone_figax = self._create_lone_figax()
+        self._fig_ax_n = self._create_fig_ax_n()
 
-    def _create_lone_figax(self) -> Tuple[Figure, Axes]:
-        fig = Figure(figsize = ((self._plot_options._base_size + 7), (self._plot_options._base_size + 7)))
+    @abstractmethod
+    def _create_fig_ax_n(self) -> Tuple[Figure, Any]:
+        pass 
+
+    @abstractmethod
+    def viz_cols_in_ax_n(self) -> Tuple[Figure, Any]:
+        pass 
+
+    @property 
+    def fig_ax_n(self):
+        return self._fig_ax_n
+
+    @fig_ax_n.setter
+    def fig_ax_n(self, fig_ax_n: Tuple[Figure, Any]) -> None:
+        self._fig_ax_n = fig_ax_n
+
+    def overwrite_fig_ax_n(self, fig_ax_n: Tuple[Figure, Any]) -> bool:
+        self.fig_ax_n = fig_ax_n
+        return True
+
+class LonePlotManager(PlotManager):
+    def __init__(self, metric_df: pd.DataFrame, plt_options: PlotOptions) -> None:
+        super().__init__(metric_df, plt_options)
+
+    def _create_fig_ax_n(self) -> Tuple[Figure, Any]:
+        fig = Figure(figsize = ((self._plot_options.base_size + 7), (self._plot_options.base_size + 7)))
         ax = fig.subplots(1, 1, sharex=True, sharey=True)
         NUM_PROPS_IN_CYCLE = 4
-        if self._plot_options._plot_cycler is not None and type(self._plot_options._plot_cycler) is dict:
-            ax.set_prop_cycle(**self._plot_options._plot_cycler)
+        if self._plot_options.plot_cycler is not None and type(self._plot_options.plot_cycler) is dict:
+            ax.set_prop_cycle(**self._plot_options.plot_cycler)
         ax.tick_params(axis='both', labelsize='large')
 
         figax = fig, ax
         return figax
 
-    @property
-    def lone_figax(self):
-        return self._lone_figax
-
-    @lone_figax.setter
-    def lone_figax(self, figax):
-        self._lone_figax = figax
-
-    def viz_cols_in_one(self) -> Tuple[Figure, Axes]:
+    def viz_cols_in_ax_n(self) -> Tuple[Figure, Axes]:
         """
         For a metric object instance, visualize all col of `values` with its associated string in `header`.
         Internal output is figure with 1 plot for all column , labelled by col name in Index.
         Optionally save as compressed numpy file with flags per viz (Recommended).
         Optionally save figure (Recommended) per viz. 
         """
-        fig, ax = self.lone_figax
+        fig, ax = self.fig_ax_n
         title = self._plot_options.names["mode"]  + " " + self._plot_options.names["final_fig_name"]
         fig.suptitle(f'{title}', fontsize="xx-large", y=0.92)
 
@@ -69,7 +97,7 @@ class LonePlotManager():
 
             og_col = col
             col = f'{self._plot_options.names["optim_name"]} {self._plot_options.names["train_split"]}'
-            if self._plot_options._use_cols:
+            if self._plot_options.use_cols:
                 col = col + " " + og_col
             line.set_label(col.title())
             ax.legend(fontsize='medium')
@@ -80,10 +108,6 @@ class LonePlotManager():
         ax.set_xlabel(self._plot_options.names["x_label"].title(), fontsize='x-large')
 
         return fig, ax
-
-    def overwrite_figax(self, figax: Tuple[Figure, Axes]) -> bool:
-        self.lone_figax = figax
-        return True
 
 class GridPlotsmanager():
     def __init__(self, metric_df: pd.DataFrame, plt_options: GridPlotOptions, version: str) -> None:
@@ -103,7 +127,7 @@ class GridPlotsmanager():
     def _create_grid_figaxes(self) -> Tuple[Figure, Any]:
         self._total_cols = len(self._metric_df.columns)
         self._grid_rows_num = math.ceil(self._total_cols / self._plot_options.grid_cols_num)
-        fig = Figure(figsize=(((self._plot_options._base_size + 6) * self._plot_options.grid_cols_num, (self._plot_options._base_size - 2) * self._grid_rows_num) ))
+        fig = Figure(figsize=(((self._plot_options.base_size + 6) * self._plot_options.grid_cols_num, (self._plot_options.base_size - 2) * self._grid_rows_num) ))
         fig.tight_layout()
         canvas = FigureCanvas(fig)
         axs = fig.subplots(
@@ -119,8 +143,8 @@ class GridPlotsmanager():
         for grid_row in range(self._grid_rows_num):
             for grid_col in range(self._plot_options.grid_cols_num):
                 ax = axs[grid_row, grid_col]
-                if self._plot_options._plot_cycler is not None and type(self._plot_options._plot_cycler) is dict:
-                    ax.set_prop_cycle(**self._plot_options._plot_cycler)
+                if self._plot_options.plot_cycler is not None and type(self._plot_options.plot_cycler) is dict:
+                    ax.set_prop_cycle(**self._plot_options.plot_cycler)
                     
         figaxes = fig, axs
         return figaxes
