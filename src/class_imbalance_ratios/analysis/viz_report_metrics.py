@@ -115,7 +115,7 @@ def viz_lone_metrics(mode:str, outputs_dir: Path, run_paths_info: list[dict[str,
         assert type(mngr) is LonePlotManager, ""
 
         fig, ax = mngr.viz_cols_in_ax_n()
-        save_dir = f"{str(outputs_dir.resolve())}/report/{mode.lower()}/{mngr._plot_options.names["version"]}/"
+        save_dir = f"{str(outputs_dir.resolve())}/report/{mode.lower()}/{mngr.plot_option_names["version"]}/"
         os.makedirs(save_dir, exist_ok=True)
         # Directory path should ensure required uniqueness settings 
         fig.savefig(f"{save_dir}/lone_{final_fig_name.replace(" ", "_").lower()}.png") 
@@ -335,8 +335,9 @@ def viz_over_dir(dir_path: Path) -> None:
     """ 
     Visualize non-core metrics that were created. 
     """
-    MODES = ["mean", "std"]
-    for mode in MODES: 
+    SUMMARY_MODES: list[str] = ["mean", "std", "upside_dev", "downside_dev", "skewness"]
+    subset_summary_modes = SUMMARY_MODES[2:]
+    for mode in subset_summary_modes: 
         viz_accuracy(dir_path=dir_path, summary_mode=mode)
         viz_loss(dir_path=dir_path, mode=mode)
         viz_dot_prod(dir_path=dir_path, mode=mode)
