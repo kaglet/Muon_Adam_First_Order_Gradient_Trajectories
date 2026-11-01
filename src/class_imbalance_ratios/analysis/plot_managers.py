@@ -121,7 +121,7 @@ class LonePlotManager(PlotManager):
     def overwrite_fig_ax_n(self, fig_ax_n: Tuple[Figure, Any]) -> bool:
         return super().overwrite_fig_ax_n(fig_ax_n)
     
-class GridPlotmanager(PlotManager):
+class GridPlotManager(PlotManager):
     def __init__(self, metric_df: DataFrame, plt_options: GridPlotOptions) -> None:
         super().__init__(metric_df, plt_options)
         self._plot_options = plt_options

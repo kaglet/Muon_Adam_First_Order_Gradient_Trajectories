@@ -7,7 +7,7 @@ from matplotlib.axes import Axes
 from matplotlib.figure import Figure
 import pandas as pd
 from src.class_imbalance_ratios.analysis.needed_paths import cls_imb_s_outputs_dir, cls_imb_l_outputs_dir
-from src.class_imbalance_ratios.analysis.plot_managers import GridPlotOptions, GridPlotmanager, LonePlotOptions, LonePlotManager, PlotManager, PlotOptions
+from src.class_imbalance_ratios.analysis.plot_managers import GridPlotOptions, GridPlotManager, LonePlotOptions, LonePlotManager, PlotManager, PlotOptions
 
 def get_mix_match_names(mode: str, final_fig_name: str, experim_dir: Path, path: Path, v_dir: Path) -> SimpleNamespace:
     optimizer_name = "Muon" if "muon" in str(experim_dir).lower() else "Adam"
@@ -69,25 +69,40 @@ def use_unique_col_names(path: Path) -> bool:
 
     return unique_cols
 
-def viz_n_metrics(plot_options_type: Type[PlotOptions], plot_manager_type: Type[PlotManager], mode:str, outputs_dir: Path, run_paths_info: list[dict[str, Any]], version_dir: str, final_fig_name:str, plot_cycler_settings: dict | None) -> None:
+def create_experiment_plot_managers(plot_options_type: Type[PlotOptions], plot_manager_type: Type[PlotManager], mode:str, outputs_dir: Path, metric_file_paths: list[dict[str, Any]], version_dir: str, final_fig_name:str, plot_cycler_settings: dict | None) -> list[PlotManager]:
     """ 
-    Pass in list of patterns. and aggregation options, which are looped over for optional number of times. 
+    Given a directory containing experiments over optimisers does the following:
+    (1) Creates the same figure and axes per (optimiser,version) combo. This allows re-use of the same object. 
+        (1.2) Re-use of the (figure,axes) is done for metrics at file path pattern desired from the version directory. 
+            - Therefore plot sharing happens twice. 
+            ~ Alternatively this could happen one after the other instead of another inner loop. 
+            Therefore accept only one summary_mode, one metric path we are seeking. 
+    (2) Create a unique plot manager per (optimiser,version,data) combo. 
+    That is, for an (optimiser,version) combo, when e.g. train then validation data is requested via 
+    the file path pattern desired, a new plot manager is created. 
+        (2.1) 
+    (3) At end of plot managers creation, saves the visualised metrics. 
+    ~ Hence the logic of populating and visualising content of plot managers can be decoupled. 
+    ~ Start with info, assuming size 1. 
+    ~ Make fixed sized plot managers prepopulated even (or perhaps this is exactly where it occurs). Then do overwrite loop. 
     """
-    fig_ax_n_store: list = []
-    plots_managers = []
+    # There will be as many plots as there are versions * optims, 1 per optim and version
+    # Each plot manager keeps state data only for optim and version
+    plots_managers = [] 
 
     for experim_dir in sorted(outputs_dir.iterdir()):
         version_dirs = sorted(experim_dir.glob(version_dir))
-        
+        # There will be as many (fig,axs) as there are versions, 1 per version
+        # Each plot manager across optim and version, shares the same fig ax
+        fig_ax_n_store: list = [] 
+
         for i, v_dir in enumerate(version_dirs):
-            # print(f"v_dir: {v_dir.stem} matched to idx: {i}")
-            # Better for figax_store to have a fixed length based of versions
-            # Then index into that when repeating diff experiments
             start_overwrite_figaxs = len(fig_ax_n_store) == len(version_dirs)
             if not start_overwrite_figaxs:
                 fig_ax_n_store.append(None)
 
-            for info in run_paths_info:
+            # Artificially forces metrics to output onto the same plot e.g. validation and accuracy data
+            for info in metric_file_paths:
                 path = sorted(v_dir.rglob(info["relative_path"], case_sensitive=False))[0]
                 if not Path(path).exists():
                     raise LookupError(f"Path to requested metric: {path} does not exit.")
@@ -97,32 +112,49 @@ def viz_n_metrics(plot_options_type: Type[PlotOptions], plot_manager_type: Type[
                 names = get_mix_match_names(mode, final_fig_name, experim_dir, path, v_dir)
                 metric_df.rename(columns={"Filler":names.metric_name}, inplace=True)
 
-                options = plot_options_type(plot_name="lone", plot_cycler=plot_cycler_settings, use_cols=names.unique_cols, version=names.version, train_split=names.train_split, final_fig_name=names.final_fig_name, mode=names.mode, optim_name=names.optimizer_name, base_size=8, x_label=names.x_label, y_label=names.y_label)
+                plot_name = "generic_plot_manager" 
+
+                if type(plot_manager_type) is Type[LonePlotManager]:
+                    plot_name="lone"
+                elif type(plot_manager_type) is Type[GridPlotManager]:
+                    plot_name = "grid"
+                else:
+                    raise ValueError(f"{type(plot_manager_type)} is not expected plot manager type of Lone or Grid")
+                
+                options = plot_options_type(plot_name=plot_name, plot_cycler=plot_cycler_settings, use_cols=names.unique_cols, version=names.version, train_split=names.train_split, final_fig_name=names.final_fig_name, mode=names.mode, optim_name=names.optimizer_name, base_size=8, x_label=names.x_label, y_label=names.y_label)
                 plots_manager = plot_manager_type(metric_df=metric_df, plt_options=options)
 
-                if not start_overwrite_figaxs and fig_ax_n_store[i] is None:
-                    fig_ax_n_store[i] = plots_manager # For runs in info they transfer on the same figax
+                # Two cases of figax transfer (Convoluted nested method):
+                # (1) During start_overwrite for (optim,version) combos
+                # (2) During detection that for metric path pattern, it has been filled previously
+                if not start_overwrite_figaxs and fig_ax_n_store[i] is None: 
+                    # This transfers plot manager to extract fig ax later 
+                    fig_ax_n_store[i] = plots_manager 
                 else:
                     used_manager = fig_ax_n_store[i]
                     assert type(used_manager) is plot_manager_type, ""
                     plots_manager.overwrite_fig_ax_n(fig_ax_n=used_manager.fig_ax_n)
 
+                # Plot manager is always saved for this metric path pattern
                 plots_managers.append(plots_manager)
 
+    return plots_managers
+
+def viz_plot_managers(plots_managers: list[PlotManager], outputs_dir: Path):
     for i, mngr in enumerate(plots_managers):
         assert isinstance(mngr, PlotManager), "Manager is not of required type PlotManager"
         fig, ax_n = mngr.viz_cols_in_ax_n()
-        save_dir = f"{str(outputs_dir.resolve())}/report/{mode.lower()}/{mngr.plot_option_names["version"]}/"
+        save_dir = f"{str(outputs_dir.resolve())}/report/{mngr.plot_option_names["mode"].lower()}/{mngr.plot_option_names["version"]}/"
         os.makedirs(save_dir, exist_ok=True)
         # Directory path should ensure required uniqueness settings 
         assert type(fig) is Figure, "Given fig is not of type Figure"
-        fig.savefig(f"{save_dir}/{mngr.plot_option_names["plot_type_name"]}_{final_fig_name.replace(" ", "_").lower()}.png") 
+        fig.savefig(f"{save_dir}/{mngr.plot_option_names["plot_type_name"]}_{mngr.plot_option_names["final_fig_name"].replace(" ", "_").lower()}.png") 
 
 def viz_lone_metrics( mode:str, outputs_dir: Path, run_paths_info: list[dict[str, Any]], version_dir: str, final_fig_name:str, plot_cycler_settings: dict | None) -> None:
-    viz_n_metrics(plot_options_type=LonePlotOptions, plot_manager_type=LonePlotManager, plot_cycler_settings=plot_cycler_settings, mode=mode, outputs_dir=outputs_dir, run_paths_info=run_paths_info, version_dir=version_dir, final_fig_name=final_fig_name)
+    create_experiment_plot_managers(plot_options_type=LonePlotOptions, plot_manager_type=LonePlotManager, plot_cycler_settings=plot_cycler_settings, mode=mode, outputs_dir=outputs_dir, metric_file_paths=run_paths_info, version_dir=version_dir, final_fig_name=final_fig_name)
 
 def viz_grid_metrics(mode:str, outputs_dir: Path, run_paths_info: list[dict[str, Any]], version_dir: str, final_fig_name:str, plot_cycler_settings: dict | None) -> None:
-    viz_n_metrics(plot_options_type=GridPlotOptions, plot_manager_type=GridPlotmanager, plot_cycler_settings=plot_cycler_settings, mode=mode, outputs_dir=outputs_dir, run_paths_info=run_paths_info, version_dir=version_dir, final_fig_name=final_fig_name)
+    create_experiment_plot_managers(plot_options_type=GridPlotOptions, plot_manager_type=GridPlotManager, plot_cycler_settings=plot_cycler_settings, mode=mode, outputs_dir=outputs_dir, metric_file_paths=run_paths_info, version_dir=version_dir, final_fig_name=final_fig_name)
 
 def viz_mean_correlation(dir_path: Path, mode: str) -> None:
     print(f"=========== VIZ {mode.upper()} NORMED GRAD CORR METRICS FOR REPORT ===========") 
