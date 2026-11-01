@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 import math
-from typing import Any, Tuple
+from typing import Any, Tuple, override
 
 from abc import ABC, abstractmethod
 
@@ -28,17 +28,22 @@ class PlotOptions():
     mode: str 
     version: str 
     final_fig_name: str 
+    plot_name: str
 
     def __post_init__(self) -> None:
-        self.names: dict[str, Any] = dict(train_split=self.train_split, x_label = self.x_label, y_label = self.y_label, optim_name=self.optim_name, mode=self.mode, final_fig_name=self.final_fig_name, version=self.version)
+        self.names: dict[str, Any] = dict(plot_type_name=self.plot_name, train_split=self.train_split, x_label = self.x_label, y_label = self.y_label, optim_name=self.optim_name, mode=self.mode, final_fig_name=self.final_fig_name, version=self.version)
 
 @dataclass
 class LonePlotOptions(PlotOptions):
     pass 
 
-@dataclass
+@dataclass(init=False)
 class GridPlotOptions(PlotOptions):
-    grid_cols_num: int
+    def __init__(self, **kwds: Any) -> None:
+        super().__init__(**kwds)
+        kwds["grid_col_num"] = 5 # This is cheating but since it is a constant it is fine
+        assert type(kwds["grid_col_num"]) is int, "`grid_col_num` must be set and have an integer number setting"
+        self.grid_col_num = kwds["grid_col_num"]
 
 class PlotManager(ABC):
     def __init__(self, metric_df: pd.DataFrame, plt_options: PlotOptions) -> None:
@@ -123,12 +128,12 @@ class GridPlotsmanager(PlotManager):
 
     def _create_fig_ax_n(self) -> Tuple[Figure, Any]:
         self._total_cols = len(self._metric_df.columns)
-        self._grid_rows_num = math.ceil(self._total_cols / self._plot_options.grid_cols_num)
-        fig = Figure(figsize=(((self._plot_options.base_size + 6) * self._plot_options.grid_cols_num, (self._plot_options.base_size - 2) * self._grid_rows_num) ))
+        self._grid_rows_num = math.ceil(self._total_cols / self._plot_options.grid_col_num)
+        fig = Figure(figsize=(((self._plot_options.base_size + 6) * self._plot_options.grid_col_num, (self._plot_options.base_size - 2) * self._grid_rows_num) ))
         fig.tight_layout()
         canvas = FigureCanvas(fig)
         axs = fig.subplots(
-            ncols=self._plot_options.grid_cols_num,
+            ncols=self._plot_options.grid_col_num,
             nrows=self._grid_rows_num,
             sharex=True,
             sharey=True
@@ -137,7 +142,7 @@ class GridPlotsmanager(PlotManager):
         fig.subplots_adjust(top=0.90)
 
         for grid_row in range(self._grid_rows_num):
-            for grid_col in range(self._plot_options.grid_cols_num):
+            for grid_col in range(self._plot_options.grid_col_num):
                 ax = axs[grid_row, grid_col]
                 if self._plot_options.plot_cycler is not None and type(self._plot_options.plot_cycler) is dict:
                     ax.set_prop_cycle(**self._plot_options.plot_cycler)
@@ -153,7 +158,7 @@ class GridPlotsmanager(PlotManager):
         fig.suptitle(f'{title}', fontsize="xx-large", y=0.92)
 
         cols_limit_counter = 0
-        for grid_col in range(self._plot_options.grid_cols_num):
+        for grid_col in range(self._plot_options.grid_col_num):
             for grid_row in range(self._grid_rows_num):
                 if cols_limit_counter >= self._total_cols:
                     break 
@@ -176,7 +181,6 @@ class GridPlotsmanager(PlotManager):
                 ax.grid(axis='both', color='gray', linestyle='--', linewidth=1, alpha=0.65, which="major")
                 ax.legend(fontsize='x-small')
 
-        # fig.show()
         return fig, axs
             
     def overwrite_fig_ax_n(self, fig_ax_n: Tuple[Figure, Any]) -> bool:

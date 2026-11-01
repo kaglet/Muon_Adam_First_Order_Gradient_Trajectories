@@ -1,13 +1,13 @@
 import os
 from pathlib import Path
-from typing import Any
+from typing import Any, Type
 
 from types import SimpleNamespace
 from matplotlib.axes import Axes
 from matplotlib.figure import Figure
 import pandas as pd
 from src.class_imbalance_ratios.analysis.needed_paths import cls_imb_s_outputs_dir, cls_imb_l_outputs_dir
-from src.class_imbalance_ratios.analysis.plot_managers import GridPlotOptions, GridPlotsmanager, LonePlotOptions, LonePlotManager
+from src.class_imbalance_ratios.analysis.plot_managers import GridPlotOptions, GridPlotsmanager, LonePlotOptions, LonePlotManager, PlotManager, PlotOptions
 
 def get_mix_match_names(mode: str, final_fig_name: str, experim_dir: Path, path: Path, v_dir: Path) -> SimpleNamespace:
     optimizer_name = "Muon" if "muon" in str(experim_dir).lower() else "Adam"
@@ -69,11 +69,11 @@ def use_unique_col_names(path: Path) -> bool:
 
     return unique_cols
 
-def viz_lone_metrics(mode:str, outputs_dir: Path, run_paths_info: list[dict[str, Any]], version_dir: str, final_fig_name:str, plot_cycler_settings: dict | None) -> None:
+def viz_n_metrics(plot_options_type: Type[PlotOptions], plot_manager_type: Type[PlotManager], mode:str, outputs_dir: Path, run_paths_info: list[dict[str, Any]], version_dir: str, final_fig_name:str, plot_cycler_settings: dict | None) -> None:
     """ 
     Pass in list of patterns. and aggregation options, which are looped over for optional number of times. 
     """
-    figax_store: list = []
+    fig_ax_n_store: list = []
     plots_managers = []
 
     for experim_dir in sorted(outputs_dir.iterdir()):
@@ -83,9 +83,9 @@ def viz_lone_metrics(mode:str, outputs_dir: Path, run_paths_info: list[dict[str,
             # print(f"v_dir: {v_dir.stem} matched to idx: {i}")
             # Better for figax_store to have a fixed length based of versions
             # Then index into that when repeating diff experiments
-            start_overwrite_figaxs = len(figax_store) == len(version_dirs)
+            start_overwrite_figaxs = len(fig_ax_n_store) == len(version_dirs)
             if not start_overwrite_figaxs:
-                figax_store.append(None)
+                fig_ax_n_store.append(None)
 
             for info in run_paths_info:
                 path = sorted(v_dir.rglob(info["relative_path"], case_sensitive=False))[0]
@@ -97,76 +97,32 @@ def viz_lone_metrics(mode:str, outputs_dir: Path, run_paths_info: list[dict[str,
                 names = get_mix_match_names(mode, final_fig_name, experim_dir, path, v_dir)
                 metric_df.rename(columns={"Filler":names.metric_name}, inplace=True)
 
-                options = LonePlotOptions(plot_cycler=plot_cycler_settings, use_cols=names.unique_cols, version=names.version, train_split=names.train_split, final_fig_name=names.final_fig_name, mode=names.mode, optim_name=names.optimizer_name, base_size=8, x_label=names.x_label, y_label=names.y_label)
-                assert type(options) is LonePlotOptions
+                options = plot_options_type(plot_name="lone", plot_cycler=plot_cycler_settings, use_cols=names.unique_cols, version=names.version, train_split=names.train_split, final_fig_name=names.final_fig_name, mode=names.mode, optim_name=names.optimizer_name, base_size=8, x_label=names.x_label, y_label=names.y_label)
+                plots_manager = plot_manager_type(metric_df=metric_df, plt_options=options)
 
-                plots_manager = LonePlotManager(metric_df=metric_df, plt_options=options)
-
-                if not start_overwrite_figaxs and figax_store[i] is None:
-                    figax_store[i] = plots_manager # For runs in info they transfer on the same figax
+                if not start_overwrite_figaxs and fig_ax_n_store[i] is None:
+                    fig_ax_n_store[i] = plots_manager # For runs in info they transfer on the same figax
                 else:
-                    used_manager = figax_store[i]
-                    assert type(used_manager) is LonePlotManager, ""
+                    used_manager = fig_ax_n_store[i]
+                    assert type(used_manager) is plot_manager_type, ""
                     plots_manager.overwrite_fig_ax_n(fig_ax_n=used_manager.fig_ax_n)
 
                 plots_managers.append(plots_manager)
 
     for i, mngr in enumerate(plots_managers):
-        assert type(mngr) is LonePlotManager, ""
-
-        fig, ax = mngr.viz_cols_in_ax_n()
+        assert type(mngr) is PlotManager
+        fig, ax_n = mngr.viz_cols_in_ax_n()
         save_dir = f"{str(outputs_dir.resolve())}/report/{mode.lower()}/{mngr.plot_option_names["version"]}/"
         os.makedirs(save_dir, exist_ok=True)
         # Directory path should ensure required uniqueness settings 
-        fig.savefig(f"{save_dir}/lone_{final_fig_name.replace(" ", "_").lower()}.png") 
+        assert type(fig) is Figure, "Given fig is not of type Figure"
+        fig.savefig(f"{save_dir}/{mngr.plot_option_names["plot_type_name"]}_{final_fig_name.replace(" ", "_").lower()}.png") 
+
+def viz_lone_metrics( mode:str, outputs_dir: Path, run_paths_info: list[dict[str, Any]], version_dir: str, final_fig_name:str, plot_cycler_settings: dict | None) -> None:
+    viz_n_metrics(plot_options_type=LonePlotOptions, plot_manager_type=GridPlotsmanager, plot_cycler_settings=plot_cycler_settings, mode=mode, outputs_dir=outputs_dir, run_paths_info=run_paths_info, version_dir=version_dir, final_fig_name=final_fig_name)
 
 def viz_grid_metrics(mode:str, outputs_dir: Path, run_paths_info: list[dict[str, Any]], version_dir: str, final_fig_name:str, plot_cycler_settings: dict | None) -> None:
-    """ 
-    Pass in list of patterns. and aggregation options, which are looped over for optional number of times. 
-    """
-    plots_managers = []
-    figaxs_store: list = []
-    for experim_dir in sorted(outputs_dir.iterdir()):
-        version_dirs = sorted(experim_dir.glob(version_dir))
-        
-        for i, v_dir in enumerate(version_dirs):
-            # Better for figax_store to have a fixed length based of versions
-            # Then index into that when repeating diff experiments
-            # print(f"v_dir: {v_dir.stem} matched to idx: {i}")
-            start_overwrite_figaxs = len(figaxs_store) == len(version_dirs)
-            if not start_overwrite_figaxs:
-                figaxs_store.append(None)
-
-            for info in run_paths_info:
-                path = sorted(v_dir.rglob(info["relative_path"], case_sensitive=False))[0]
-                if not Path(path).exists():
-                    raise LookupError(f"Path to requested metric: {path} does not exit.")
-
-                metric_df = pd.read_parquet(path)
-
-                names = get_mix_match_names(mode, final_fig_name, experim_dir, path, v_dir)
-
-                options = GridPlotOptions(plot_cycler=plot_cycler_settings, use_cols=names.unique_cols, version=names.version, train_split=names.train_split, final_fig_name=names.final_fig_name, mode=names.mode, optim_name=names.optimizer_name, base_size=8, x_label=names.x_label, y_label=names.y_label, grid_cols_num=5)
-                assert type(options) is GridPlotOptions
-
-                plots_manager = GridPlotsmanager(metric_df=metric_df, plt_options=options)
-
-                if not start_overwrite_figaxs and figaxs_store[i] is None:
-                    figaxs_store[i] = plots_manager # For runs in info they transfer on the same figax
-                else:
-                    used_manager = figaxs_store[i]
-                    assert type(used_manager) is GridPlotsmanager, ""
-                    plots_manager.overwrite_fig_ax_n(fig_ax_n=used_manager.fig_ax_n)
-
-                plots_managers.append(plots_manager)
-
-    for i, mngr in enumerate(plots_managers): 
-        assert type(mngr) is GridPlotsmanager, ""
-
-        fig, axs = mngr.viz_cols_in_ax_n()
-        save_dir = f"{str(outputs_dir.resolve())}/report/{mode}/{mngr.plot_option_names["version"]}/"
-        os.makedirs(save_dir, exist_ok=True)
-        fig.savefig(f"{save_dir}/grid_{final_fig_name.replace(" ", "_").lower()}.png") 
+    viz_n_metrics(plot_options_type=LonePlotOptions, plot_manager_type=LonePlotManager, plot_cycler_settings=plot_cycler_settings, mode=mode, outputs_dir=outputs_dir, run_paths_info=run_paths_info, version_dir=version_dir, final_fig_name=final_fig_name)
 
 def viz_mean_correlation(dir_path: Path, mode: str) -> None:
     print(f"=========== VIZ {mode.upper()} NORMED GRAD CORR METRICS FOR REPORT ===========") 
@@ -336,7 +292,7 @@ def viz_over_dir(dir_path: Path) -> None:
     Visualize non-core metrics that were created. 
     """
     SUMMARY_MODES: list[str] = ["mean", "std", "upside_dev", "downside_dev", "skewness"]
-    subset_summary_modes = SUMMARY_MODES[2:]
+    subset_summary_modes = SUMMARY_MODES[2:] # Generate only a subset of modes especially if new modes are added in @./create_non_core_summaries.py
     for mode in subset_summary_modes: 
         viz_accuracy(dir_path=dir_path, summary_mode=mode)
         viz_loss(dir_path=dir_path, mode=mode)
