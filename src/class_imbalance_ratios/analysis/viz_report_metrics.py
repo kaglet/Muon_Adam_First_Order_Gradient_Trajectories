@@ -7,7 +7,7 @@ from matplotlib.axes import Axes
 from matplotlib.figure import Figure
 import pandas as pd
 from src.class_imbalance_ratios.analysis.needed_paths import cls_imb_s_outputs_dir, cls_imb_l_outputs_dir
-from src.class_imbalance_ratios.analysis.plot_managers import GridPlotOptions, GridPlotsmanager, LonePlotOptions, LonePlotManager, PlotManager, PlotOptions
+from src.class_imbalance_ratios.analysis.plot_managers import GridPlotOptions, GridPlotmanager, LonePlotOptions, LonePlotManager, PlotManager, PlotOptions
 
 def get_mix_match_names(mode: str, final_fig_name: str, experim_dir: Path, path: Path, v_dir: Path) -> SimpleNamespace:
     optimizer_name = "Muon" if "muon" in str(experim_dir).lower() else "Adam"
@@ -110,7 +110,7 @@ def viz_n_metrics(plot_options_type: Type[PlotOptions], plot_manager_type: Type[
                 plots_managers.append(plots_manager)
 
     for i, mngr in enumerate(plots_managers):
-        assert type(mngr) is PlotManager
+        assert isinstance(mngr, PlotManager), "Manager is not of required type PlotManager"
         fig, ax_n = mngr.viz_cols_in_ax_n()
         save_dir = f"{str(outputs_dir.resolve())}/report/{mode.lower()}/{mngr.plot_option_names["version"]}/"
         os.makedirs(save_dir, exist_ok=True)
@@ -122,7 +122,7 @@ def viz_lone_metrics( mode:str, outputs_dir: Path, run_paths_info: list[dict[str
     viz_n_metrics(plot_options_type=LonePlotOptions, plot_manager_type=LonePlotManager, plot_cycler_settings=plot_cycler_settings, mode=mode, outputs_dir=outputs_dir, run_paths_info=run_paths_info, version_dir=version_dir, final_fig_name=final_fig_name)
 
 def viz_grid_metrics(mode:str, outputs_dir: Path, run_paths_info: list[dict[str, Any]], version_dir: str, final_fig_name:str, plot_cycler_settings: dict | None) -> None:
-    viz_n_metrics(plot_options_type=GridPlotOptions, plot_manager_type=GridPlotsmanager, plot_cycler_settings=plot_cycler_settings, mode=mode, outputs_dir=outputs_dir, run_paths_info=run_paths_info, version_dir=version_dir, final_fig_name=final_fig_name)
+    viz_n_metrics(plot_options_type=GridPlotOptions, plot_manager_type=GridPlotmanager, plot_cycler_settings=plot_cycler_settings, mode=mode, outputs_dir=outputs_dir, run_paths_info=run_paths_info, version_dir=version_dir, final_fig_name=final_fig_name)
 
 def viz_mean_correlation(dir_path: Path, mode: str) -> None:
     print(f"=========== VIZ {mode.upper()} NORMED GRAD CORR METRICS FOR REPORT ===========") 
