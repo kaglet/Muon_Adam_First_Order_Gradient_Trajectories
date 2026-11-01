@@ -55,6 +55,10 @@ class PlotManager(ABC):
         pass 
 
     @property 
+    def plot_option_names(self):
+        return self._plot_options.names
+    
+    @property 
     def fig_ax_n(self):
         return self._fig_ax_n
 
@@ -67,7 +71,7 @@ class PlotManager(ABC):
         return True
 
 class LonePlotManager(PlotManager):
-    def __init__(self, metric_df: pd.DataFrame, plt_options: PlotOptions) -> None:
+    def __init__(self, metric_df: pd.DataFrame, plt_options: LonePlotOptions) -> None:
         super().__init__(metric_df, plt_options)
 
     def _create_fig_ax_n(self) -> Tuple[Figure, Any]:
@@ -109,22 +113,15 @@ class LonePlotManager(PlotManager):
 
         return fig, ax
 
-class GridPlotsmanager():
-    def __init__(self, metric_df: pd.DataFrame, plt_options: GridPlotOptions, version: str) -> None:
-        self._metric_df = metric_df
+    def overwrite_fig_ax_n(self, fig_ax_n: Tuple[Figure, Any]) -> bool:
+        return super().overwrite_fig_ax_n(fig_ax_n)
+    
+class GridPlotsmanager(PlotManager):
+    def __init__(self, metric_df: DataFrame, plt_options: GridPlotOptions) -> None:
+        super().__init__(metric_df, plt_options)
         self._plot_options = plt_options
-        self._grid_figaxs = self._create_grid_figaxes()
-        self.version = version # This is simply to get the semantic version for experiment - bad practice as coupled with external code, will decouple into separate list
 
-    @property
-    def grid_figaxs(self):
-        return self._grid_figaxs
-
-    @grid_figaxs.setter
-    def grid_figaxs(self, figaxs):
-        self._grid_figaxs = figaxs
-
-    def _create_grid_figaxes(self) -> Tuple[Figure, Any]:
+    def _create_fig_ax_n(self) -> Tuple[Figure, Any]:
         self._total_cols = len(self._metric_df.columns)
         self._grid_rows_num = math.ceil(self._total_cols / self._plot_options.grid_cols_num)
         fig = Figure(figsize=(((self._plot_options.base_size + 6) * self._plot_options.grid_cols_num, (self._plot_options.base_size - 2) * self._grid_rows_num) ))
@@ -139,7 +136,6 @@ class GridPlotsmanager():
         )
         fig.subplots_adjust(top=0.90)
 
-        NUM_PROPS_IN_CYCLE = 2
         for grid_row in range(self._grid_rows_num):
             for grid_col in range(self._plot_options.grid_cols_num):
                 ax = axs[grid_row, grid_col]
@@ -149,12 +145,9 @@ class GridPlotsmanager():
         figaxes = fig, axs
         return figaxes
 
-    def viz_cols_in_grid(self) -> Tuple[Figure, Any]:
-        """
-
-        """
+    def viz_cols_in_ax_n(self) -> Tuple[Figure, Any]:
         # figsize is (w,h) as spec
-        fig, axs = self.grid_figaxs
+        fig, axs = self.fig_ax_n
         title = self._plot_options.names["mode"]  + " " + self._plot_options.names["final_fig_name"] + " " + self._plot_options.names["x_label"]
 
         fig.suptitle(f'{title}', fontsize="xx-large", y=0.92)
@@ -186,14 +179,14 @@ class GridPlotsmanager():
         # fig.show()
         return fig, axs
             
-    def overwrite_figaxes(self, figaxes: Tuple[Figure, Any]) -> bool:
-        fig, axs = figaxes
-        assert type(axs) == type(self.grid_figaxs[1]), f"Type of axs to overwrite current must be {type(self.grid_figaxs[1])} not {type(axs)}."
-        rows_equal = len(self.grid_figaxs[1]) == len(axs)
-        cols_equal = len(self.grid_figaxs[1][0]) == len(axs[0])
+    def overwrite_fig_ax_n(self, fig_ax_n: Tuple[Figure, Any]) -> bool:
+        fig, axs = fig_ax_n
+        assert type(axs) == type(self.fig_ax_n[1]), f"Type of axs to overwrite current must be {type(self.fig_ax_n[1])} not {type(axs)}."
+        rows_equal = len(self.fig_ax_n[1]) == len(axs)
+        cols_equal = len(self.fig_ax_n[1][0]) == len(axs[0])
         # TODO: If uneven grid would need to expand this to be a check over all dims (easier if np.ndarray)
         if rows_equal and cols_equal:
-            self._grid_figaxs = (fig, axs)
+            self._fig_ax_n = (fig, axs)
         else:
             raise ValueError()
         

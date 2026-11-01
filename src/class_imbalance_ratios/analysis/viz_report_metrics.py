@@ -149,22 +149,22 @@ def viz_grid_metrics(mode:str, outputs_dir: Path, run_paths_info: list[dict[str,
                 options = GridPlotOptions(plot_cycler=plot_cycler_settings, use_cols=names.unique_cols, version=names.version, train_split=names.train_split, final_fig_name=names.final_fig_name, mode=names.mode, optim_name=names.optimizer_name, base_size=8, x_label=names.x_label, y_label=names.y_label, grid_cols_num=5)
                 assert type(options) is GridPlotOptions
 
-                plots_manager = GridPlotsmanager(metric_df=metric_df, plt_options=options, version=v_dir.stem)
+                plots_manager = GridPlotsmanager(metric_df=metric_df, plt_options=options)
 
                 if not start_overwrite_figaxs and figaxs_store[i] is None:
                     figaxs_store[i] = plots_manager # For runs in info they transfer on the same figax
                 else:
                     used_manager = figaxs_store[i]
                     assert type(used_manager) is GridPlotsmanager, ""
-                    plots_manager.overwrite_figaxes(figaxes=used_manager.grid_figaxs)
+                    plots_manager.overwrite_fig_ax_n(fig_ax_n=used_manager.fig_ax_n)
 
                 plots_managers.append(plots_manager)
 
     for i, mngr in enumerate(plots_managers): 
         assert type(mngr) is GridPlotsmanager, ""
 
-        fig, axs = mngr.viz_cols_in_grid()
-        save_dir = f"{str(outputs_dir.resolve())}/report/{mode}/{mngr.version}/"
+        fig, axs = mngr.viz_cols_in_ax_n()
+        save_dir = f"{str(outputs_dir.resolve())}/report/{mode}/{mngr.plot_option_names["version"]}/"
         os.makedirs(save_dir, exist_ok=True)
         fig.savefig(f"{save_dir}/grid_{final_fig_name.replace(" ", "_").lower()}.png") 
 
