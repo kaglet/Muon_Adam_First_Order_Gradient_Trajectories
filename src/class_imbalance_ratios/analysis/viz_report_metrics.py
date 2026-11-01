@@ -69,7 +69,7 @@ def use_unique_col_names(path: Path) -> bool:
 
     return unique_cols
 
-def create_experiment_plot_managers(plot_options_type: Type[PlotOptions], plot_manager_type: Type[PlotManager], mode:str, outputs_dir: Path, metric_file_paths: list[dict[str, Any]], version_dir: str, final_fig_name:str, plot_cycler_settings: dict | None) -> list[PlotManager]:
+def create_experiment_plot_managers(plot_options_type: Type[PlotOptions], plot_manager_type: Type[PlotManager], mode:str, outputs_dir: Path, metric_path_info: dict[str, Any], version_dir: str, final_fig_name:str, plot_cycler_settings: dict | None) -> list[PlotManager]:
     """ 
     Given a directory containing experiments over optimisers does the following:
     (1) Creates the same figure and axes per (optimiser,version) combo. This allows re-use of the same object. 
@@ -102,41 +102,40 @@ def create_experiment_plot_managers(plot_options_type: Type[PlotOptions], plot_m
                 fig_ax_n_store.append(None)
 
             # Artificially forces metrics to output onto the same plot e.g. validation and accuracy data
-            for info in metric_file_paths:
-                path = sorted(v_dir.rglob(info["relative_path"], case_sensitive=False))[0]
-                if not Path(path).exists():
-                    raise LookupError(f"Path to requested metric: {path} does not exit.")
+            path = sorted(v_dir.rglob(metric_path_info["relative_path"], case_sensitive=False))[0]
+            if not Path(path).exists():
+                raise LookupError(f"Path to requested metric: {path} does not exit.")
 
-                metric_df = pd.read_parquet(path)
+            metric_df = pd.read_parquet(path)
 
-                names = get_mix_match_names(mode, final_fig_name, experim_dir, path, v_dir)
-                metric_df.rename(columns={"Filler":names.metric_name}, inplace=True)
+            names = get_mix_match_names(mode, final_fig_name, experim_dir, path, v_dir)
+            metric_df.rename(columns={"Filler":names.metric_name}, inplace=True)
 
-                plot_name = "generic_plot_manager" 
+            plot_name = "generic_plot_manager" 
 
-                if type(plot_manager_type) is Type[LonePlotManager]:
-                    plot_name="lone"
-                elif type(plot_manager_type) is Type[GridPlotManager]:
-                    plot_name = "grid"
-                else:
-                    raise ValueError(f"{type(plot_manager_type)} is not expected plot manager type of Lone or Grid")
-                
-                options = plot_options_type(plot_name=plot_name, plot_cycler=plot_cycler_settings, use_cols=names.unique_cols, version=names.version, train_split=names.train_split, final_fig_name=names.final_fig_name, mode=names.mode, optim_name=names.optimizer_name, base_size=8, x_label=names.x_label, y_label=names.y_label)
-                plots_manager = plot_manager_type(metric_df=metric_df, plt_options=options)
+            if type(plot_manager_type) is Type[LonePlotManager]:
+                plot_name="lone"
+            elif type(plot_manager_type) is Type[GridPlotManager]:
+                plot_name = "grid"
+            else:
+                raise ValueError(f"{type(plot_manager_type)} is not expected plot manager type of Lone or Grid")
+            
+            options = plot_options_type(plot_name=plot_name, plot_cycler=plot_cycler_settings, use_cols=names.unique_cols, version=names.version, train_split=names.train_split, final_fig_name=names.final_fig_name, mode=names.mode, optim_name=names.optimizer_name, base_size=8, x_label=names.x_label, y_label=names.y_label)
+            plots_manager = plot_manager_type(metric_df=metric_df, plt_options=options)
 
-                # Two cases of figax transfer (Convoluted nested method):
-                # (1) During start_overwrite for (optim,version) combos
-                # (2) During detection that for metric path pattern, it has been filled previously
-                if not start_overwrite_figaxs and fig_ax_n_store[i] is None: 
-                    # This transfers plot manager to extract fig ax later 
-                    fig_ax_n_store[i] = plots_manager 
-                else:
-                    used_manager = fig_ax_n_store[i]
-                    assert type(used_manager) is plot_manager_type, ""
-                    plots_manager.overwrite_fig_ax_n(fig_ax_n=used_manager.fig_ax_n)
+            # Two cases of figax transfer (Convoluted nested method):
+            # (1) During start_overwrite for (optim,version) combos
+            # (2) During detection that for metric path pattern, it has been filled previously
+            if not start_overwrite_figaxs and fig_ax_n_store[i] is None: 
+                # This transfers plot manager to extract fig ax later 
+                fig_ax_n_store[i] = plots_manager 
+            else:
+                used_manager = fig_ax_n_store[i]
+                assert type(used_manager) is plot_manager_type, ""
+                plots_manager.overwrite_fig_ax_n(fig_ax_n=used_manager.fig_ax_n)
 
-                # Plot manager is always saved for this metric path pattern
-                plots_managers.append(plots_manager)
+            # Plot manager is always saved for this metric path pattern
+            plots_managers.append(plots_manager)
 
     return plots_managers
 
@@ -150,21 +149,19 @@ def viz_plot_managers(plots_managers: list[PlotManager], outputs_dir: Path):
         assert type(fig) is Figure, "Given fig is not of type Figure"
         fig.savefig(f"{save_dir}/{mngr.plot_option_names["plot_type_name"]}_{mngr.plot_option_names["final_fig_name"].replace(" ", "_").lower()}.png") 
 
-def viz_lone_metrics( mode:str, outputs_dir: Path, run_paths_info: list[dict[str, Any]], version_dir: str, final_fig_name:str, plot_cycler_settings: dict | None) -> None:
-    create_experiment_plot_managers(plot_options_type=LonePlotOptions, plot_manager_type=LonePlotManager, plot_cycler_settings=plot_cycler_settings, mode=mode, outputs_dir=outputs_dir, metric_file_paths=run_paths_info, version_dir=version_dir, final_fig_name=final_fig_name)
+def viz_lone_metrics( mode:str, outputs_dir: Path, metric_path_info: dict[str, Any], version_dir: str, final_fig_name:str, plot_cycler_settings: dict | None) -> None:
+    create_experiment_plot_managers(plot_options_type=LonePlotOptions, plot_manager_type=LonePlotManager, plot_cycler_settings=plot_cycler_settings, mode=mode, outputs_dir=outputs_dir, metric_path_info=metric_path_info, version_dir=version_dir, final_fig_name=final_fig_name)
 
-def viz_grid_metrics(mode:str, outputs_dir: Path, run_paths_info: list[dict[str, Any]], version_dir: str, final_fig_name:str, plot_cycler_settings: dict | None) -> None:
-    create_experiment_plot_managers(plot_options_type=GridPlotOptions, plot_manager_type=GridPlotManager, plot_cycler_settings=plot_cycler_settings, mode=mode, outputs_dir=outputs_dir, metric_file_paths=run_paths_info, version_dir=version_dir, final_fig_name=final_fig_name)
+def viz_grid_metrics(mode:str, outputs_dir: Path, metric_path_info: dict[str, Any], version_dir: str, final_fig_name:str, plot_cycler_settings: dict | None) -> None:
+    create_experiment_plot_managers(plot_options_type=GridPlotOptions, plot_manager_type=GridPlotManager, plot_cycler_settings=plot_cycler_settings, mode=mode, outputs_dir=outputs_dir, metric_path_info=metric_path_info, version_dir=version_dir, final_fig_name=final_fig_name)
 
 def viz_mean_correlation(dir_path: Path, mode: str) -> None:
     print(f"=========== VIZ {mode.upper()} NORMED GRAD CORR METRICS FOR REPORT ===========") 
     # Normed Per col per step (per OPTIM step)
-    relative_paths_info = [
-        dict(
+    relative_paths_info = dict(
             relative_path= f"runs_extra-none_{mode}_Normalised-GC.parquet", 
         )
-    ]
-
+    
     NUM_PROPS_IN_CYCLE = 2
     plot_cycler_settings = dict(color=['#CC79A7', '#0072B2'], linestyle=['--', '--'], marker=['.'] * NUM_PROPS_IN_CYCLE, markersize=[2.5] * NUM_PROPS_IN_CYCLE, linewidth=[1.25] * NUM_PROPS_IN_CYCLE)
     
@@ -173,34 +170,32 @@ def viz_mean_correlation(dir_path: Path, mode: str) -> None:
         mode=mode,
         outputs_dir=dir_path, 
         version_dir="multijob/R*", 
-        run_paths_info=relative_paths_info,
+        metric_path_info=relative_paths_info,
         final_fig_name="Muon and Adam Per Layer Cosine Similarity"
     ) 
 
     # Normed Col reduction per step (per OPTIM step)
-    relative_paths_info = [
-        dict(
+    relative_paths_info = dict(
             relative_path= f"runs_extra-cols_{mode}_Normalised-GC.parquet", 
         )
-    ]
+    
 
     viz_lone_metrics(
         plot_cycler_settings=plot_cycler_settings,
         mode=mode,
         outputs_dir=dir_path, 
         version_dir="multijob/R*", 
-        run_paths_info=relative_paths_info,
+        metric_path_info=relative_paths_info,
         final_fig_name="Muon and Adam Cosine Similarity"
     ) 
 
 def viz_dot_prod(dir_path: Path, mode: str) -> None:
     print(f"=========== VIZ {mode.upper()} UNNORMED GRAD CORR METRICS FOR REPORT ===========") 
     # Unnormed Per col per step (per OPTIM step)
-    relative_paths_info = [
-        dict(
+    relative_paths_info = dict(
             relative_path= f"runs_extra-none_{mode}_Unnormalised-GC.parquet", 
         )
-    ]
+    
 
     NUM_PROPS_IN_CYCLE = 2
     plot_cycler_settings = dict(color=['#CC79A7', '#0072B2'], linestyle=['--', '--'], marker=['.'] * NUM_PROPS_IN_CYCLE, markersize=[2.5] * NUM_PROPS_IN_CYCLE, linewidth=[1.25] * NUM_PROPS_IN_CYCLE)
@@ -210,23 +205,22 @@ def viz_dot_prod(dir_path: Path, mode: str) -> None:
         mode=mode,
         outputs_dir=dir_path, 
         version_dir="multijob/R*", 
-        run_paths_info=relative_paths_info,
+        metric_path_info=relative_paths_info,
         final_fig_name="Muon and Adam Per Layer Dot Product"
     ) 
 
     # Unnormed Col reduction per step (per OPTIM step)
-    relative_paths_info = [
-        dict(
+    relative_paths_info = dict(
             relative_path= f"runs_extra-cols_{mode}_Unnormalised-GC.parquet", 
         )
-    ]
+    
 
     viz_lone_metrics(
         plot_cycler_settings=plot_cycler_settings,
         mode=mode,
         outputs_dir=dir_path, 
         version_dir="multijob/R*", 
-        run_paths_info=relative_paths_info,
+        metric_path_info=relative_paths_info,
         final_fig_name="Muon and Adam Dot Product"
     ) 
 
@@ -248,7 +242,7 @@ def viz_accuracy(dir_path: Path, summary_mode: str) -> None:
             mode=summary_mode,
             outputs_dir=dir_path, 
             version_dir="multijob/R*", 
-            run_paths_info=relative_paths_info,
+            metric_path_info=relative_paths_info,
             final_fig_name="Per Class Muon and Adam Train and Validation Accuracy"
         ) 
         
@@ -269,7 +263,7 @@ def viz_accuracy(dir_path: Path, summary_mode: str) -> None:
             mode=summary_mode,
             outputs_dir=dir_path, 
             version_dir="multijob/R*", 
-            run_paths_info=relative_paths_info,
+            metric_path_info=relative_paths_info,
             final_fig_name="Muon and Adam Train and Validation Accuracy (Global)"
         ) 
 
@@ -292,7 +286,7 @@ def viz_accuracy(dir_path: Path, summary_mode: str) -> None:
             mode=summary_mode,
             outputs_dir=dir_path, 
             version_dir="multijob/R*", 
-            run_paths_info=relative_paths_info,
+            metric_path_info=relative_paths_info,
             final_fig_name="Subgroup Muon and Adam Train and Validation Accuracy"
         ) 
 
@@ -315,7 +309,7 @@ def viz_loss(dir_path: Path, mode: str) -> None:
             mode=mode,
             outputs_dir=dir_path, 
             version_dir="multijob/R*", 
-            run_paths_info=relative_paths_info,
+            metric_path_info=relative_paths_info,
             final_fig_name="Muon and Adam Train and Validation Loss"
         ) 
 
