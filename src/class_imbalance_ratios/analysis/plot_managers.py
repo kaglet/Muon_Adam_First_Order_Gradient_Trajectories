@@ -136,7 +136,8 @@ class GridPlotsmanager(PlotManager):
             ncols=self._plot_options.grid_col_num,
             nrows=self._grid_rows_num,
             sharex=True,
-            sharey=True
+            sharey=True,
+            squeeze=False
             # dpi=self._plot_options.dpi,
         )
         fig.subplots_adjust(top=0.90)
