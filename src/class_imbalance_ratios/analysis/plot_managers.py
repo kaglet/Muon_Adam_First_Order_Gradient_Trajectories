@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 import math
-from typing import Any, Tuple, override
+from typing import Any, Optional, Tuple, override
 
 from abc import ABC, abstractmethod
 
@@ -28,14 +28,17 @@ class PlotOptions():
     mode: str 
     version: str 
     final_fig_name: str 
-    plot_name: str
+    plot_name: Optional[str] = "generic"
 
     def __post_init__(self) -> None:
         self.names: dict[str, Any] = dict(plot_type_name=self.plot_name, train_split=self.train_split, x_label = self.x_label, y_label = self.y_label, optim_name=self.optim_name, mode=self.mode, final_fig_name=self.final_fig_name, version=self.version)
+        self.plot_name = "generic"
 
 @dataclass
 class LonePlotOptions(PlotOptions):
-    pass 
+    def __post_init__(self) -> None:
+        self.plot_name = "lone"
+        super().__post_init__()
 
 @dataclass(init=False)
 class GridPlotOptions(PlotOptions):
@@ -44,6 +47,10 @@ class GridPlotOptions(PlotOptions):
         kwds["grid_col_num"] = 5 # This is cheating but since it is a constant it is fine
         assert type(kwds["grid_col_num"]) is int, "`grid_col_num` must be set and have an integer number setting"
         self.grid_col_num = kwds["grid_col_num"]
+
+    def __post_init__(self) -> None:
+        self.plot_name = "grid"
+        super().__post_init__()
 
 class PlotManager(ABC):
     def __init__(self, metric_df: pd.DataFrame, plt_options: PlotOptions) -> None:
