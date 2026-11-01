@@ -1,6 +1,6 @@
 import os
 from pathlib import Path
-from typing import Any, Type
+from typing import Any, Tuple, Type
 
 from types import SimpleNamespace
 from matplotlib.axes import Axes
@@ -69,7 +69,7 @@ def use_unique_col_names(path: Path) -> bool:
 
     return unique_cols
 
-def create_experiment_plot_managers(plot_options_type: Type[PlotOptions], plot_manager_type: Type[PlotManager], mode:str, outputs_dir: Path, metric_path_info: dict[str, Any], version_dir: str, final_fig_name:str, plot_cycler_settings: dict | None) -> list[PlotManager]:
+def create_experiment_plot_managers(plot_options_type: Type[PlotOptions], plot_manager_type: Type[PlotManager], mode:str, outputs_dir: Path, metric_path_info: dict[str, Any], version_dir_pattern: str, final_fig_name:str, plot_cycler_settings: dict | None) -> Tuple[list[PlotManager], list[Any]]:
     """ 
     Given a directory containing experiments over optimisers does the following:
     (1) Creates the same figure and axes per (optimiser,version) combo. This allows re-use of the same object. 
@@ -88,27 +88,21 @@ def create_experiment_plot_managers(plot_options_type: Type[PlotOptions], plot_m
     """
     # There will be as many plots as there are versions * optims, 1 per optim and version
     # Each plot manager keeps state data only for optim and version
-    plots_managers = [] 
+    optims_dirs = sorted(outputs_dir.iterdir())
+    plots_managers = []
+    fig_ax_n_store = []
 
-    for experim_dir in sorted(outputs_dir.iterdir()):
-        version_dirs = sorted(experim_dir.glob(version_dir))
-        # There will be as many (fig,axs) as there are versions, 1 per version
-        # Each plot manager across optim and version, shares the same fig ax
-        fig_ax_n_store: list = [] 
+    for optim_idx, experim_dir in enumerate(optims_dirs):
+        version_dirs = sorted(experim_dir.glob(version_dir_pattern))
 
-        for i, v_dir in enumerate(version_dirs):
-            start_overwrite_figaxs = len(fig_ax_n_store) == len(version_dirs)
-            if not start_overwrite_figaxs:
-                fig_ax_n_store.append(None)
-
-            # Artificially forces metrics to output onto the same plot e.g. validation and accuracy data
-            path = sorted(v_dir.rglob(metric_path_info["relative_path"], case_sensitive=False))[0]
+        for version_idx, version_dir in enumerate(version_dirs):
+            path = sorted(version_dir.rglob(metric_path_info["relative_path"], case_sensitive=False))[0]
             if not Path(path).exists():
                 raise LookupError(f"Path to requested metric: {path} does not exit.")
 
             metric_df = pd.read_parquet(path)
 
-            names = get_mix_match_names(mode, final_fig_name, experim_dir, path, v_dir)
+            names = get_mix_match_names(mode, final_fig_name, experim_dir, path, version_dir)
             metric_df.rename(columns={"Filler":names.metric_name}, inplace=True)
 
             plot_name = "generic_plot_manager" 
@@ -123,21 +117,19 @@ def create_experiment_plot_managers(plot_options_type: Type[PlotOptions], plot_m
             options = plot_options_type(plot_name=plot_name, plot_cycler=plot_cycler_settings, use_cols=names.unique_cols, version=names.version, train_split=names.train_split, final_fig_name=names.final_fig_name, mode=names.mode, optim_name=names.optimizer_name, base_size=8, x_label=names.x_label, y_label=names.y_label)
             plots_manager = plot_manager_type(metric_df=metric_df, plt_options=options)
 
-            # Two cases of figax transfer (Convoluted nested method):
-            # (1) During start_overwrite for (optim,version) combos
-            # (2) During detection that for metric path pattern, it has been filled previously
-            if not start_overwrite_figaxs and fig_ax_n_store[i] is None: 
-                # This transfers plot manager to extract fig ax later 
-                fig_ax_n_store[i] = plots_manager 
+            should_create_new = len(fig_ax_n_store) != len(version_dirs)
+            if should_create_new: 
+                fig_ax_n_store.append(plots_manager.fig_ax_n)
             else:
-                used_manager = fig_ax_n_store[i]
-                assert type(used_manager) is plot_manager_type, ""
-                plots_manager.overwrite_fig_ax_n(fig_ax_n=used_manager.fig_ax_n)
+                fig_ax_n = fig_ax_n_store[version_idx]
+                plots_manager.overwrite_fig_ax_n(fig_ax_n=fig_ax_n)
 
-            # Plot manager is always saved for this metric path pattern
             plots_managers.append(plots_manager)
 
-    return plots_managers
+    assert type(plots_managers) is list[PlotManager], ""
+    assert type(fig_ax_n_store) is list[Tuple[Figure, Any]], ""
+    
+    return plots_managers, fig_ax_n_store
 
 def viz_plot_managers(plots_managers: list[PlotManager], outputs_dir: Path):
     for i, mngr in enumerate(plots_managers):
@@ -149,11 +141,11 @@ def viz_plot_managers(plots_managers: list[PlotManager], outputs_dir: Path):
         assert type(fig) is Figure, "Given fig is not of type Figure"
         fig.savefig(f"{save_dir}/{mngr.plot_option_names["plot_type_name"]}_{mngr.plot_option_names["final_fig_name"].replace(" ", "_").lower()}.png") 
 
-def viz_lone_metrics( mode:str, outputs_dir: Path, metric_path_info: dict[str, Any], version_dir: str, final_fig_name:str, plot_cycler_settings: dict | None) -> None:
-    create_experiment_plot_managers(plot_options_type=LonePlotOptions, plot_manager_type=LonePlotManager, plot_cycler_settings=plot_cycler_settings, mode=mode, outputs_dir=outputs_dir, metric_path_info=metric_path_info, version_dir=version_dir, final_fig_name=final_fig_name)
+def viz_lone_metrics( mode:str, outputs_dir: Path, metric_path_info: dict[str, Any], version_dir_pattern: str, final_fig_name:str, plot_cycler_settings: dict | None) -> None:
+    create_experiment_plot_managers(plot_options_type=LonePlotOptions, plot_manager_type=LonePlotManager, plot_cycler_settings=plot_cycler_settings, mode=mode, outputs_dir=outputs_dir, metric_path_info=metric_path_info, version_dir_pattern=version_dir_pattern, final_fig_name=final_fig_name)
 
-def viz_grid_metrics(mode:str, outputs_dir: Path, metric_path_info: dict[str, Any], version_dir: str, final_fig_name:str, plot_cycler_settings: dict | None) -> None:
-    create_experiment_plot_managers(plot_options_type=GridPlotOptions, plot_manager_type=GridPlotManager, plot_cycler_settings=plot_cycler_settings, mode=mode, outputs_dir=outputs_dir, metric_path_info=metric_path_info, version_dir=version_dir, final_fig_name=final_fig_name)
+def viz_grid_metrics(mode:str, outputs_dir: Path, metric_path_info: dict[str, Any], version_dir_pattern: str, final_fig_name:str, plot_cycler_settings: dict | None) -> None:
+    create_experiment_plot_managers(plot_options_type=GridPlotOptions, plot_manager_type=GridPlotManager, plot_cycler_settings=plot_cycler_settings, mode=mode, outputs_dir=outputs_dir, metric_path_info=metric_path_info, version_dir_pattern=version_dir_pattern, final_fig_name=final_fig_name)
 
 def viz_mean_correlation(dir_path: Path, mode: str) -> None:
     print(f"=========== VIZ {mode.upper()} NORMED GRAD CORR METRICS FOR REPORT ===========") 
@@ -169,7 +161,7 @@ def viz_mean_correlation(dir_path: Path, mode: str) -> None:
         plot_cycler_settings=plot_cycler_settings,
         mode=mode,
         outputs_dir=dir_path, 
-        version_dir="multijob/R*", 
+        version_dir_pattern="multijob/R*", 
         metric_path_info=relative_paths_info,
         final_fig_name="Muon and Adam Per Layer Cosine Similarity"
     ) 
@@ -184,7 +176,7 @@ def viz_mean_correlation(dir_path: Path, mode: str) -> None:
         plot_cycler_settings=plot_cycler_settings,
         mode=mode,
         outputs_dir=dir_path, 
-        version_dir="multijob/R*", 
+        version_dir_pattern="multijob/R*", 
         metric_path_info=relative_paths_info,
         final_fig_name="Muon and Adam Cosine Similarity"
     ) 
@@ -204,7 +196,7 @@ def viz_dot_prod(dir_path: Path, mode: str) -> None:
         plot_cycler_settings=plot_cycler_settings,
         mode=mode,
         outputs_dir=dir_path, 
-        version_dir="multijob/R*", 
+        version_dir_pattern="multijob/R*", 
         metric_path_info=relative_paths_info,
         final_fig_name="Muon and Adam Per Layer Dot Product"
     ) 
@@ -219,7 +211,7 @@ def viz_dot_prod(dir_path: Path, mode: str) -> None:
         plot_cycler_settings=plot_cycler_settings,
         mode=mode,
         outputs_dir=dir_path, 
-        version_dir="multijob/R*", 
+        version_dir_pattern="multijob/R*", 
         metric_path_info=relative_paths_info,
         final_fig_name="Muon and Adam Dot Product"
     ) 
@@ -241,7 +233,7 @@ def viz_accuracy(dir_path: Path, summary_mode: str) -> None:
             plot_cycler_settings=plot_cycler_settings,
             mode=summary_mode,
             outputs_dir=dir_path, 
-            version_dir="multijob/R*", 
+            version_dir_pattern="multijob/R*", 
             metric_path_info=relative_paths_info,
             final_fig_name="Per Class Muon and Adam Train and Validation Accuracy"
         ) 
@@ -262,7 +254,7 @@ def viz_accuracy(dir_path: Path, summary_mode: str) -> None:
             plot_cycler_settings=plot_cycler_settings,
             mode=summary_mode,
             outputs_dir=dir_path, 
-            version_dir="multijob/R*", 
+            version_dir_pattern="multijob/R*", 
             metric_path_info=relative_paths_info,
             final_fig_name="Muon and Adam Train and Validation Accuracy (Global)"
         ) 
@@ -285,7 +277,7 @@ def viz_accuracy(dir_path: Path, summary_mode: str) -> None:
             plot_cycler_settings=plot_cycler_settings,
             mode=summary_mode,
             outputs_dir=dir_path, 
-            version_dir="multijob/R*", 
+            version_dir_pattern="multijob/R*", 
             metric_path_info=relative_paths_info,
             final_fig_name="Subgroup Muon and Adam Train and Validation Accuracy"
         ) 
@@ -308,7 +300,7 @@ def viz_loss(dir_path: Path, mode: str) -> None:
             plot_cycler_settings=plot_cycler_settings,
             mode=mode,
             outputs_dir=dir_path, 
-            version_dir="multijob/R*", 
+            version_dir_pattern="multijob/R*", 
             metric_path_info=relative_paths_info,
             final_fig_name="Muon and Adam Train and Validation Loss"
         ) 
