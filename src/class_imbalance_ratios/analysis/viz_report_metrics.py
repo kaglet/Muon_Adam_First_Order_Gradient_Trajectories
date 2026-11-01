@@ -119,10 +119,10 @@ def viz_n_metrics(plot_options_type: Type[PlotOptions], plot_manager_type: Type[
         fig.savefig(f"{save_dir}/{mngr.plot_option_names["plot_type_name"]}_{final_fig_name.replace(" ", "_").lower()}.png") 
 
 def viz_lone_metrics( mode:str, outputs_dir: Path, run_paths_info: list[dict[str, Any]], version_dir: str, final_fig_name:str, plot_cycler_settings: dict | None) -> None:
-    viz_n_metrics(plot_options_type=LonePlotOptions, plot_manager_type=GridPlotsmanager, plot_cycler_settings=plot_cycler_settings, mode=mode, outputs_dir=outputs_dir, run_paths_info=run_paths_info, version_dir=version_dir, final_fig_name=final_fig_name)
+    viz_n_metrics(plot_options_type=LonePlotOptions, plot_manager_type=LonePlotManager, plot_cycler_settings=plot_cycler_settings, mode=mode, outputs_dir=outputs_dir, run_paths_info=run_paths_info, version_dir=version_dir, final_fig_name=final_fig_name)
 
 def viz_grid_metrics(mode:str, outputs_dir: Path, run_paths_info: list[dict[str, Any]], version_dir: str, final_fig_name:str, plot_cycler_settings: dict | None) -> None:
-    viz_n_metrics(plot_options_type=LonePlotOptions, plot_manager_type=LonePlotManager, plot_cycler_settings=plot_cycler_settings, mode=mode, outputs_dir=outputs_dir, run_paths_info=run_paths_info, version_dir=version_dir, final_fig_name=final_fig_name)
+    viz_n_metrics(plot_options_type=GridPlotOptions, plot_manager_type=GridPlotsmanager, plot_cycler_settings=plot_cycler_settings, mode=mode, outputs_dir=outputs_dir, run_paths_info=run_paths_info, version_dir=version_dir, final_fig_name=final_fig_name)
 
 def viz_mean_correlation(dir_path: Path, mode: str) -> None:
     print(f"=========== VIZ {mode.upper()} NORMED GRAD CORR METRICS FOR REPORT ===========") 
