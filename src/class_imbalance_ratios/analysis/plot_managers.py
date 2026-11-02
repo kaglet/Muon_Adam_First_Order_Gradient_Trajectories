@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 import math
 from typing import Any, Optional, Tuple, override
+from itertools import cycle
 
 from abc import ABC, abstractmethod
 
@@ -28,11 +29,16 @@ class PlotOptions():
     mode: str 
     version: str 
     final_fig_name: str 
+    fill_colors: cycle = cycle(["#922FC4C9", "#B23BEDC8", "#FF04FFAC", "#C7CA2DC9", "#EEF146C8", "#FBFF1BC8"])
     plot_name: Optional[str] = "generic"
 
     def __post_init__(self) -> None:
         self.names: dict[str, Any] = dict(plot_type_name=self.plot_name, train_split=self.train_split, x_label = self.x_label, y_label = self.y_label, optim_name=self.optim_name, mode=self.mode, final_fig_name=self.final_fig_name, version=self.version)
         self.plot_name = "generic"
+        if self.optim_name.lower() == "muon":
+            self.fill_colors = cycle(["#C7CA2DC9", "#EEF146C8", "#FBFF1BC8"])
+        elif self.optim_name.lower() == "adam":
+            self.fill_colors = cycle(["#922FC4C9", "#B23BEDC8", "#FF04FFAC"])
 
 @dataclass
 class LonePlotOptions(PlotOptions):
@@ -87,19 +93,19 @@ class PlotManager(ABC):
         lower_vals = self._quantile_dfs["q25"].loc[:, og_col].values
         higher_vals = self._quantile_dfs["q75"].loc[:, og_col].values
         ax.fill_between(
-            index_vals, lower_vals, higher_vals, color="darkgrey", alpha=0.3, label="Q25-75"
+            index_vals, lower_vals, higher_vals, color=next(self._plot_options.fill_colors), alpha=0.3, label="Q25-75"
         )
 
         lower_vals = self._quantile_dfs["q10"].loc[:, og_col].values
         higher_vals = self._quantile_dfs["q90"].loc[:, og_col].values
         ax.fill_between(
-            index_vals, lower_vals, higher_vals, color="silver", alpha=0.3, label="Q10-90"
+            index_vals, lower_vals, higher_vals, color=next(self._plot_options.fill_colors), alpha=0.3, label="Q10-90"
         )
 
         lower_vals = self._quantile_dfs["q5"].loc[:, og_col].values
         higher_vals = self._quantile_dfs["q95"].loc[:, og_col].values
         ax.fill_between(
-            index_vals, lower_vals, higher_vals, color="lightgrey", alpha=0.3, label="Q25-75"
+            index_vals, lower_vals, higher_vals, color=next(self._plot_options.fill_colors), alpha=0.3, label="Q25-75"
         )
 
 class LonePlotManager(PlotManager):
