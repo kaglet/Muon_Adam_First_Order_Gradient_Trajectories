@@ -36,9 +36,9 @@ class PlotOptions():
         self.names: dict[str, Any] = dict(plot_type_name=self.plot_name, train_split=self.train_split, x_label = self.x_label, y_label = self.y_label, optim_name=self.optim_name, mode=self.mode, final_fig_name=self.final_fig_name, version=self.version)
         self.plot_name = "generic"
         if self.optim_name.lower() == "muon":
-            self.fill_colors = cycle(["#C7CA2DC9", "#EEF146C8", "#FBFF1BC8"])
+            self.fill_colors = cycle(["#A6CEE3"])
         elif self.optim_name.lower() == "adam":
-            self.fill_colors = cycle(["#922FC4C9", "#B23BEDC8", "#FF04FFAC"])
+            self.fill_colors = cycle(["#FDBF6F"])
 
 @dataclass
 class LonePlotOptions(PlotOptions):

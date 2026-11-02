@@ -254,7 +254,6 @@ def viz_accuracy(dir_path: Path, summary_mode: str) -> None:
 
         viz_plot_managers(plot_managers, outputs_dir=dir_path)
 
-
     # Subgroups per epoch
     relative_paths_info = [
         dict(
