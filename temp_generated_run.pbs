@@ -19,8 +19,8 @@ echo
 # 1. Load the specific CUDA module required by cluster's physical NVIDIA drivers
 module load chpc/cuda/12.0/12.0
 
-echo "Starting Adam Class Imbalance Large Experiment Run via Pixi..."
+echo "Starting Muon Class Imbalance Large Experiment Run via Pixi..."
 
 # 2. Execute current experiment (cls_imb_s) run using the absolute path to Pixi
-~/.pixi/bin/pixi run adam_cls_imb_l --run=1 --seed=1 --slice=1 --ratio_seed=1
+~/.pixi/bin/pixi run muon_cls_imb_l --run=2 --seed=2 --slice=3 --ratio_seed=3
 echo "JOB FINISHED AT: $(date '+%Y-%m-%d %H:%M:%S')"
