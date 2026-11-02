@@ -139,23 +139,7 @@ class LonePlotManager(PlotManager):
                 col = col + " " + og_col
             line.set_label(col.title())
 
-            lower_vals = self._quantile_dfs["q25"].loc[:, og_col].values
-            higher_vals = self._quantile_dfs["q75"].loc[:, og_col].values
-            ax.fill_between(
-                index_vals, lower_vals, higher_vals, color="darkgrey", alpha=0.3, label="Q25-75"
-            )
-
-            lower_vals = self._quantile_dfs["q10"].loc[:, og_col].values
-            higher_vals = self._quantile_dfs["q90"].loc[:, og_col].values
-            ax.fill_between(
-                index_vals, lower_vals, higher_vals, color="silver", alpha=0.3, label="Q10-90"
-            )
-
-            lower_vals = self._quantile_dfs["q5"].loc[:, og_col].values
-            higher_vals = self._quantile_dfs["q95"].loc[:, og_col].values
-            ax.fill_between(
-                index_vals, lower_vals, higher_vals, color="lightgrey", alpha=0.3, label="Q25-75"
-            )
+            self.fill_quartiles(ax, index_vals, og_col)
 
             ax.legend(fontsize='medium')
         
@@ -229,23 +213,7 @@ class GridPlotManager(PlotManager):
 
                 line, = ax.plot(index_vals, col_vals, label=f'{self._plot_options.names["optim_name"]}')
 
-                lower_vals = self._quantile_dfs["q25"].loc[:, og_col].values
-                higher_vals = self._quantile_dfs["q75"].loc[:, og_col].values
-                ax.fill_between(
-                    index_vals, lower_vals, higher_vals, color="darkgrey", alpha=0.3, label="Q25-75"
-                )
-
-                lower_vals = self._quantile_dfs["q10"].loc[:, og_col].values
-                higher_vals = self._quantile_dfs["q90"].loc[:, og_col].values
-                ax.fill_between(
-                    index_vals, lower_vals, higher_vals, color="silver", alpha=0.3, label="Q10-90"
-                )
-
-                lower_vals = self._quantile_dfs["q5"].loc[:, og_col].values
-                higher_vals = self._quantile_dfs["q95"].loc[:, og_col].values
-                ax.fill_between(
-                    index_vals, lower_vals, higher_vals, color="lightgrey", alpha=0.3, label="Q25-75"
-                )
+                self.fill_quartiles(ax, index_vals, og_col)
 
                 ax.grid(axis='both', color='gray', linestyle='--', linewidth=1, alpha=0.65, which="major")
                 ax.legend(fontsize='x-small')
