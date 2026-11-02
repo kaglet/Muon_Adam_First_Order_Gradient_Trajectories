@@ -237,8 +237,8 @@ def viz_accuracy(dir_path: Path, summary_mode: str) -> None:
 
     curr_fig_ax_n_store = None 
     immutable_fig_ax_store = None 
+    plot_cycler_settings = None
     for i, metric_file_pattern in enumerate(relative_paths_info):
-        plot_cycler_settings = None
         plot_managers, curr_fig_ax_n_store = manage_lone_metrics(
             fig_ax_n_store=immutable_fig_ax_store,
             plot_cycler_settings=plot_cycler_settings,
@@ -269,7 +269,6 @@ def viz_accuracy(dir_path: Path, summary_mode: str) -> None:
     curr_fig_ax_n_store = None 
     immutable_fig_ax_store = None 
     for i, metric_file_pattern in enumerate(relative_paths_info):
-        plot_cycler_settings = None
         plot_managers, curr_fig_ax_n_store = manage_lone_metrics(
             fig_ax_n_store=immutable_fig_ax_store,
             plot_cycler_settings=plot_cycler_settings,
@@ -277,7 +276,7 @@ def viz_accuracy(dir_path: Path, summary_mode: str) -> None:
             outputs_dir=dir_path, 
             version_dir_pattern="multijob/R*", 
             metric_path_info=metric_file_pattern,
-            final_fig_name="Per Class Muon and Adam Train and Validation Accuracy"
+            final_fig_name="Muon and Adam Train and Validation Accuracy"
         )
 
         if i == 0:
@@ -303,7 +302,6 @@ def viz_accuracy(dir_path: Path, summary_mode: str) -> None:
     curr_fig_ax_n_store = None 
     immutable_fig_ax_store = None 
     for i, metric_file_pattern in enumerate(relative_paths_info):
-        plot_cycler_settings = None
         plot_managers, curr_fig_ax_n_store = manage_lone_metrics(
             fig_ax_n_store=immutable_fig_ax_store,
             plot_cycler_settings=plot_cycler_settings,
@@ -311,7 +309,7 @@ def viz_accuracy(dir_path: Path, summary_mode: str) -> None:
             outputs_dir=dir_path, 
             version_dir_pattern="multijob/R*", 
             metric_path_info=metric_file_pattern,
-            final_fig_name="Per Class Muon and Adam Train and Validation Accuracy"
+            final_fig_name="Subgroup Muon and Adam Train and Validation Accuracy"
         )
 
         if i == 0:
@@ -337,7 +335,6 @@ def viz_loss(dir_path: Path, summary_mode: str) -> None:
     immutable_fig_ax_store = None 
     
     for i, metric_file_pattern in enumerate(relative_paths_info):
-        plot_cycler_settings = None
         plot_managers, curr_fig_ax_n_store = manage_lone_metrics(
             fig_ax_n_store=immutable_fig_ax_store,
             plot_cycler_settings=plot_cycler_settings,
