@@ -83,6 +83,25 @@ class PlotManager(ABC):
         self.fig_ax_n = fig_ax_n
         return True
 
+    def fill_quartiles(self, ax: Any, index_vals: list, og_col):
+        lower_vals = self._quantile_dfs["q25"].loc[:, og_col].values
+        higher_vals = self._quantile_dfs["q75"].loc[:, og_col].values
+        ax.fill_between(
+            index_vals, lower_vals, higher_vals, color="darkgrey", alpha=0.3, label="Q25-75"
+        )
+
+        lower_vals = self._quantile_dfs["q10"].loc[:, og_col].values
+        higher_vals = self._quantile_dfs["q90"].loc[:, og_col].values
+        ax.fill_between(
+            index_vals, lower_vals, higher_vals, color="silver", alpha=0.3, label="Q10-90"
+        )
+
+        lower_vals = self._quantile_dfs["q5"].loc[:, og_col].values
+        higher_vals = self._quantile_dfs["q95"].loc[:, og_col].values
+        ax.fill_between(
+            index_vals, lower_vals, higher_vals, color="lightgrey", alpha=0.3, label="Q25-75"
+        )
+
 class LonePlotManager(PlotManager):
     def __init__(self, metric_df: pd.DataFrame, plt_options: LonePlotOptions, quantile_dfs = dict[str, pd.DataFrame]) -> None:
         super().__init__(metric_df, plt_options, quantile_dfs)
@@ -119,17 +138,25 @@ class LonePlotManager(PlotManager):
             if self._plot_options.use_cols:
                 col = col + " " + og_col
             line.set_label(col.title())
+
             lower_vals = self._quantile_dfs["q25"].loc[:, og_col].values
             higher_vals = self._quantile_dfs["q75"].loc[:, og_col].values
             ax.fill_between(
-                index_vals, lower_vals, higher_vals, color="skyblue", alpha=0.4, label="Q25-75"
+                index_vals, lower_vals, higher_vals, color="darkgrey", alpha=0.3, label="Q25-75"
             )
 
             lower_vals = self._quantile_dfs["q10"].loc[:, og_col].values
             higher_vals = self._quantile_dfs["q90"].loc[:, og_col].values
             ax.fill_between(
-                index_vals, lower_vals, higher_vals, color="skyblue", alpha=0.4, label="Q10-90"
+                index_vals, lower_vals, higher_vals, color="silver", alpha=0.3, label="Q10-90"
             )
+
+            lower_vals = self._quantile_dfs["q5"].loc[:, og_col].values
+            higher_vals = self._quantile_dfs["q95"].loc[:, og_col].values
+            ax.fill_between(
+                index_vals, lower_vals, higher_vals, color="lightgrey", alpha=0.3, label="Q25-75"
+            )
+
             ax.legend(fontsize='medium')
         
         ax.grid(axis='both', color='gray', linestyle='--', linewidth=1, alpha=0.65, which="major")
@@ -187,7 +214,7 @@ class GridPlotManager(PlotManager):
                 
                 col = self._metric_df.columns[cols_limit_counter]
                 og_col = col 
-                
+
                 index_vals = list(self._metric_df.index.to_numpy(dtype=np.int32))
                 col_vals = list(self._metric_df.loc[:, col].values)
                 cols_limit_counter += 1
@@ -205,13 +232,19 @@ class GridPlotManager(PlotManager):
                 lower_vals = self._quantile_dfs["q25"].loc[:, og_col].values
                 higher_vals = self._quantile_dfs["q75"].loc[:, og_col].values
                 ax.fill_between(
-                    index_vals, lower_vals, higher_vals, color="skyblue", alpha=0.4, label="Q25-75"
+                    index_vals, lower_vals, higher_vals, color="darkgrey", alpha=0.3, label="Q25-75"
                 )
 
                 lower_vals = self._quantile_dfs["q10"].loc[:, og_col].values
                 higher_vals = self._quantile_dfs["q90"].loc[:, og_col].values
                 ax.fill_between(
-                    index_vals, lower_vals, higher_vals, color="skyblue", alpha=0.4, label="Q10-90"
+                    index_vals, lower_vals, higher_vals, color="silver", alpha=0.3, label="Q10-90"
+                )
+
+                lower_vals = self._quantile_dfs["q5"].loc[:, og_col].values
+                higher_vals = self._quantile_dfs["q95"].loc[:, og_col].values
+                ax.fill_between(
+                    index_vals, lower_vals, higher_vals, color="lightgrey", alpha=0.3, label="Q25-75"
                 )
 
                 ax.grid(axis='both', color='gray', linestyle='--', linewidth=1, alpha=0.65, which="major")
