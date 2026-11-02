@@ -35,8 +35,9 @@ def summarize_all(dir: Path):
     Generate non-core metrics from .parquet core files. 
     This operates over run directories to form different summary metrics. 
     """
-    SUMMARY_MODES: list[str] = ["mean", "std", "upside_dev", "downside_dev", "skewness"]
-    subset_summary_modes = SUMMARY_MODES[2:]
+    quantiles = ["q50", "q25", "q75", "q10", "q90", "q5", "q95"]
+    SUMMARY_MODES: list[str] = ["mean", "std", "upside_dev", "downside_dev", "skewness"] + quantiles
+    subset_summary_modes = SUMMARY_MODES[5:]
     
     print("=========== STORING SUMMARY GRADIENT CORRELATION METRICS ===========")
     relative_paths_info = [

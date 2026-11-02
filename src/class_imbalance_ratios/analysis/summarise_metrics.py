@@ -227,6 +227,34 @@ def summarize_runs_metric(summary_modes: list[str], summary_mode_extras: dict[Li
             runs_std_df = preagg_splits.std()
             runs_std_df.to_parquet(final_mode_paths["std"])
 
+        if "q5" in summary_modes:
+            runs_q5_df = preagg_splits.quantile(q=0.05)
+            runs_q5_df.to_parquet(final_mode_paths["q5"])
+
+        if "q10" in summary_modes:
+            runs_q10_df = preagg_splits.quantile(q=0.10)
+            runs_q10_df.to_parquet(final_mode_paths["q10"])
+
+        if "q25" in summary_modes:
+            runs_q25_df = preagg_splits.quantile(q=0.25)
+            runs_q25_df.to_parquet(final_mode_paths["q25"])
+
+        if "q50" in summary_modes:
+            runs_q50_df = preagg_splits.quantile(q=0.50)
+            runs_q50_df.to_parquet(final_mode_paths["q50"])
+
+        if "q75" in summary_modes:
+            runs_q75_df = preagg_splits.quantile(q=0.75)
+            runs_q75_df.to_parquet(final_mode_paths["q75"])
+
+        if "q90" in summary_modes:
+            runs_q90_df = preagg_splits.quantile(q=0.90)
+            runs_q90_df.to_parquet(final_mode_paths["q90"])
+
+        if "q95" in summary_modes:
+            runs_q95_df = preagg_splits.quantile(q=0.95)
+            runs_q95_df.to_parquet(final_mode_paths["q95"])
+
         if "upside_dev" in summary_modes:
             runs_upside_dev = preagg_splits.agg(upside_dev)
             runs_upside_dev.to_parquet(final_mode_paths["upside_dev"])
@@ -238,6 +266,8 @@ def summarize_runs_metric(summary_modes: list[str], summary_mode_extras: dict[Li
         if "skewness" in summary_modes:
             runs_skewness = preagg_splits.skew()
             runs_skewness.to_parquet(final_mode_paths["skewness"])
+
+        
 
 if __name__ == "__main__":
     pass
