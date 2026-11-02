@@ -100,17 +100,25 @@ def create_experiment_plot_managers(plot_options_type: Type[PlotOptions], plot_m
             assert len(fig_ax_n_store) == len(version_dirs), f"Lengths of figures vs versions for experiment do not match: {len(fig_ax_n_store)} != {len(version_dirs)}"
         should_create_new = len(fig_ax_n_store) != len(version_dirs)
         for version_idx, version_dir in enumerate(version_dirs):
-            path = sorted(version_dir.rglob(metric_path_info["relative_path"], case_sensitive=False))[0]
-            if not Path(path).exists():
-                raise LookupError(f"Path to requested metric: {path} does not exit.")
+            metric_path = sorted(version_dir.rglob(metric_path_info["relative_path"], case_sensitive=False))[0]
+            if not Path(metric_path).exists():
+                raise LookupError(f"Path to requested metric: {metric_path} does not exit.")
 
-            metric_df = pd.read_parquet(path)
+            metric_df = pd.read_parquet(metric_path)
 
-            names = get_mix_match_names(mode, final_fig_name, experim_dir, path, version_dir)
+            names = get_mix_match_names(mode, final_fig_name, experim_dir, metric_path, version_dir)
             metric_df.rename(columns={"Filler":names.metric_name}, inplace=True)
 
+            QUANTILES = ["q50", "q25", "q75", "q10", "q90", "q5", "q95"]
+            quantile_dfs = dict()
+            for q in QUANTILES:
+                q_path = str(metric_path).replace("mean", q)
+                q_df = pd.read_parquet(q_path)
+                q_df.rename(columns={"Filler":names.metric_name}, inplace=True)
+                quantile_dfs[q] = q_df
+                
             options = plot_options_type(plot_cycler=plot_cycler_settings, use_cols=names.unique_cols, version=names.version, train_split=names.train_split, final_fig_name=names.final_fig_name, mode=names.mode, optim_name=names.optimizer_name, base_size=8, x_label=names.x_label, y_label=names.y_label)
-            plots_manager = plot_manager_type(metric_df=metric_df, plt_options=options)
+            plots_manager = plot_manager_type(metric_df=metric_df, plt_options=options, quantile_dfs=quantile_dfs)
 
             if should_create_new: 
                 fig_ax_n_store.append(plots_manager.fig_ax_n)
@@ -119,9 +127,6 @@ def create_experiment_plot_managers(plot_options_type: Type[PlotOptions], plot_m
                 plots_manager.overwrite_fig_ax_n(fig_ax_n=fig_ax_n)
 
             plots_managers.append(plots_manager)
-
-    # assert type(plots_managers) is list[PlotManager], ""
-    # assert type(fig_ax_n_store) is list[Tuple[Figure, Any]], ""
     
     return plots_managers, fig_ax_n_store
 
@@ -352,8 +357,9 @@ def viz_over_dir(dir_path: Path) -> None:
     """ 
     Visualize non-core metrics that were created. 
     """
-    SUMMARY_MODES: list[str] = ["mean", "std", "upside_dev", "downside_dev", "skewness"]
-    subset_summary_modes = SUMMARY_MODES[2:] # Generate only a subset of modes especially if new modes are added in @./create_non_core_summaries.py
+    SUMMARY_MODES: list[str] = ["mean"]
+    
+    subset_summary_modes = SUMMARY_MODES[0:] # Generate only a subset of modes especially if new modes are added in @./create_non_core_summaries.py
     for mode in subset_summary_modes: 
         viz_accuracy(dir_path=dir_path, summary_mode=mode)
         viz_loss(dir_path=dir_path, summary_mode=mode)

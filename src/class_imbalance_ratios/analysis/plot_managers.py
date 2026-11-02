@@ -53,10 +53,11 @@ class GridPlotOptions(PlotOptions):
         super().__post_init__()
 
 class PlotManager(ABC):
-    def __init__(self, metric_df: pd.DataFrame, plt_options: PlotOptions) -> None:
+    def __init__(self, metric_df: pd.DataFrame, plt_options: PlotOptions, quantile_dfs: dict[str, pd.DataFrame]) -> None:
         self._metric_df = metric_df
         self._plot_options = plt_options
         self._fig_ax_n = self._create_fig_ax_n()
+        self._quantile_dfs = quantile_dfs
 
     @abstractmethod
     def _create_fig_ax_n(self) -> Tuple[Figure, Any]:
@@ -83,8 +84,8 @@ class PlotManager(ABC):
         return True
 
 class LonePlotManager(PlotManager):
-    def __init__(self, metric_df: pd.DataFrame, plt_options: LonePlotOptions) -> None:
-        super().__init__(metric_df, plt_options)
+    def __init__(self, metric_df: pd.DataFrame, plt_options: LonePlotOptions, quantile_dfs = dict[str, pd.DataFrame]) -> None:
+        super().__init__(metric_df, plt_options, quantile_dfs)
 
     def _create_fig_ax_n(self) -> Tuple[Figure, Any]:
         fig = Figure(figsize = ((self._plot_options.base_size + 7), (self._plot_options.base_size + 7)))
@@ -109,13 +110,26 @@ class LonePlotManager(PlotManager):
         fig.suptitle(f'{title}', fontsize="xx-large", y=0.92)
 
         for col in self._metric_df.columns:
-            line, = ax.plot(list(self._metric_df.index.to_numpy(dtype=np.int32)), list(self._metric_df.loc[:, col].values))
+            index_vals = list(self._metric_df.index.to_numpy(dtype=np.int32))
+            y_vals = list(self._metric_df.loc[:, col].values)
+            line, = ax.plot(index_vals, y_vals)
 
             og_col = col
             col = f'{self._plot_options.names["optim_name"]} {self._plot_options.names["train_split"]}'
             if self._plot_options.use_cols:
                 col = col + " " + og_col
             line.set_label(col.title())
+            lower_vals = self._quantile_dfs["q25"].loc[:, og_col].values
+            higher_vals = self._quantile_dfs["q75"].loc[:, og_col].values
+            ax.fill_between(
+                index_vals, lower_vals, higher_vals, color="skyblue", alpha=0.4, label="Q25-75"
+            )
+
+            lower_vals = self._quantile_dfs["q10"].loc[:, og_col].values
+            higher_vals = self._quantile_dfs["q90"].loc[:, og_col].values
+            ax.fill_between(
+                index_vals, lower_vals, higher_vals, color="skyblue", alpha=0.4, label="Q10-90"
+            )
             ax.legend(fontsize='medium')
         
         ax.grid(axis='both', color='gray', linestyle='--', linewidth=1, alpha=0.65, which="major")
@@ -129,8 +143,8 @@ class LonePlotManager(PlotManager):
         return super().overwrite_fig_ax_n(fig_ax_n)
     
 class GridPlotManager(PlotManager):
-    def __init__(self, metric_df: DataFrame, plt_options: GridPlotOptions) -> None:
-        super().__init__(metric_df, plt_options)
+    def __init__(self, metric_df: DataFrame, plt_options: GridPlotOptions, quantile_dfs = dict[str, pd.DataFrame]) -> None:
+        super().__init__(metric_df, plt_options, quantile_dfs)
         self._plot_options = plt_options
 
     def _create_fig_ax_n(self) -> Tuple[Figure, Any]:
@@ -170,8 +184,10 @@ class GridPlotManager(PlotManager):
             for grid_row in range(self._grid_rows_num):
                 if cols_limit_counter >= self._total_cols:
                     break 
-
+                
                 col = self._metric_df.columns[cols_limit_counter]
+                og_col = col 
+                
                 index_vals = list(self._metric_df.index.to_numpy(dtype=np.int32))
                 col_vals = list(self._metric_df.loc[:, col].values)
                 cols_limit_counter += 1
@@ -185,6 +201,18 @@ class GridPlotManager(PlotManager):
                 ax.set_title(f"{col.title()}", fontsize='large')
 
                 line, = ax.plot(index_vals, col_vals, label=f'{self._plot_options.names["optim_name"]}')
+
+                lower_vals = self._quantile_dfs["q25"].loc[:, og_col].values
+                higher_vals = self._quantile_dfs["q75"].loc[:, og_col].values
+                ax.fill_between(
+                    index_vals, lower_vals, higher_vals, color="skyblue", alpha=0.4, label="Q25-75"
+                )
+
+                lower_vals = self._quantile_dfs["q10"].loc[:, og_col].values
+                higher_vals = self._quantile_dfs["q90"].loc[:, og_col].values
+                ax.fill_between(
+                    index_vals, lower_vals, higher_vals, color="skyblue", alpha=0.4, label="Q10-90"
+                )
 
                 ax.grid(axis='both', color='gray', linestyle='--', linewidth=1, alpha=0.65, which="major")
                 ax.legend(fontsize='x-small')
