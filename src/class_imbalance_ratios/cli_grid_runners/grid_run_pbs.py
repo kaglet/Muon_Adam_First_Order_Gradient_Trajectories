@@ -100,12 +100,10 @@ if __name__ == "__main__":
     root_dir = Path(__file__).parent.parent / "large/"
     print(str(root_dir))
     runs = list(range(10))
-    runs = runs[2:]
+    runs = runs[3:]
     slices = list(range(4))
-    slices = slices[-1:]
 
     optim_names = ["adam", "muon"]
-    optim_names = optim_names[1:]
     run_pbs_many(root_dir=root_dir, run_interval = runs, slice_interval = slices, optim_names=optim_names)
 
 
