@@ -69,7 +69,7 @@ def use_unique_col_names(path: Path) -> bool:
 
     return unique_cols
 
-def create_experiment_plot_managers(plot_options_type: Type[PlotOptions], plot_manager_type: Type[PlotManager], mode:str, outputs_dir: Path, metric_path_info: dict[str, Any], version_dir_pattern: str, final_fig_name:str, plot_cycler_settings: dict | None, fig_ax_n_store: Optional[list[Tuple[Figure, Any]]] = None) -> Tuple[list[PlotManager], list[Tuple[Figure, Any]]]:
+def create_experiment_plot_managers(plot_options_type: Type[PlotOptions], plot_manager_type: Type[PlotManager], mode:str, outputs_dir: Path, metric_path_info: dict[str, Any], version_dir_pattern: str, final_fig_name:str, plot_cycler_settings: dict | None, fig_ax_n_store: Optional[list[Any]] = None) -> Tuple[list[Any], list[Any]]:
     """ 
     Given a directory containing experiments over optimisers does the following:
     (1) Creates the same figure and axes per (optimiser,version) combo. This allows re-use of the same object. 
@@ -93,6 +93,8 @@ def create_experiment_plot_managers(plot_options_type: Type[PlotOptions], plot_m
     fig_ax_n_store = [] if fig_ax_n_store is None else fig_ax_n_store
 
     for optim_idx, experim_dir in enumerate(optims_dirs):
+        if "report" in str(experim_dir):
+            continue
         version_dirs = sorted(experim_dir.glob(version_dir_pattern))
         if len(fig_ax_n_store) > 0:
             assert len(fig_ax_n_store) == len(version_dirs), f"Lengths of figures vs versions for experiment do not match: {len(fig_ax_n_store)} != {len(version_dirs)}"
@@ -118,8 +120,8 @@ def create_experiment_plot_managers(plot_options_type: Type[PlotOptions], plot_m
 
             plots_managers.append(plots_manager)
 
-    assert type(plots_managers) is list[PlotManager], ""
-    assert type(fig_ax_n_store) is list[Tuple[Figure, Any]], ""
+    # assert type(plots_managers) is list[PlotManager], ""
+    # assert type(fig_ax_n_store) is list[Tuple[Figure, Any]], ""
     
     return plots_managers, fig_ax_n_store
 
@@ -133,11 +135,11 @@ def viz_plot_managers(plots_managers: list[PlotManager], outputs_dir: Path):
         assert type(fig) is Figure, "Given fig is not of type Figure"
         fig.savefig(f"{save_dir}/{mngr.plot_option_names["plot_type_name"]}_{mngr.plot_option_names["final_fig_name"].replace(" ", "_").lower()}.png") 
 
-def manage_lone_metrics(mode:str, outputs_dir: Path, metric_path_info: dict[str, Any], version_dir_pattern: str, final_fig_name:str, plot_cycler_settings: dict | None, fig_ax_n_store: Optional[list[Tuple[Figure, Any]]] = None) -> Tuple[list[PlotManager], list[Tuple[Figure, Any]]]:
+def manage_lone_metrics(mode:str, outputs_dir: Path, metric_path_info: dict[str, Any], version_dir_pattern: str, final_fig_name:str, plot_cycler_settings: dict | None, fig_ax_n_store: Optional[list[Any]] = None) -> Tuple[list[Any], list[Tuple[Figure, Any]]]:
     plot_managers, fig_ax_n_store = create_experiment_plot_managers(fig_ax_n_store=fig_ax_n_store, plot_options_type=LonePlotOptions, plot_manager_type=LonePlotManager, plot_cycler_settings=plot_cycler_settings, mode=mode, outputs_dir=outputs_dir, metric_path_info=metric_path_info, version_dir_pattern=version_dir_pattern, final_fig_name=final_fig_name)
     return plot_managers, fig_ax_n_store
 
-def manage_grid_metrics(mode:str, outputs_dir: Path, metric_path_info: dict[str, Any], version_dir_pattern: str, final_fig_name:str, plot_cycler_settings: dict | None, fig_ax_n_store: Optional[list[Tuple[Figure, Any]]] = None) -> Tuple[list[PlotManager], list[Tuple[Figure, Any]]]:
+def manage_grid_metrics(mode:str, outputs_dir: Path, metric_path_info: dict[str, Any], version_dir_pattern: str, final_fig_name:str, plot_cycler_settings: dict | None, fig_ax_n_store: Optional[list[Any]] = None) -> Tuple[list[Any], list[Tuple[Figure, Any]]]:
     plot_managers, fig_ax_n_store = create_experiment_plot_managers(fig_ax_n_store=fig_ax_n_store, plot_options_type=GridPlotOptions, plot_manager_type=GridPlotManager, plot_cycler_settings=plot_cycler_settings, mode=mode, outputs_dir=outputs_dir, metric_path_info=metric_path_info, version_dir_pattern=version_dir_pattern, final_fig_name=final_fig_name)
     return plot_managers, fig_ax_n_store
 
