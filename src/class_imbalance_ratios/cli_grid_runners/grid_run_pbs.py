@@ -34,11 +34,10 @@ def react_to_fatal_err(msg: str) -> bool:
 
     return False
 
-def run_pbs_many(root_dir: Path, run_interval: list[int], slice_interval: list[int], MAX_RETRIES_IDX: int = 100):
+def run_pbs_many(optim_names: list[str], root_dir: Path, run_interval: list[int], slice_interval: list[int], MAX_RETRIES_IDX: int = 100):
     retry_counter = 0
-    OPTIM_NAMES = ["adam", "muon"]
 
-    num_optims = len(OPTIM_NAMES)
+    num_optims = len(optim_names)
     run_length = len(run_interval)
     slice_length = len(slice_interval)
     run = 0
@@ -49,7 +48,7 @@ def run_pbs_many(root_dir: Path, run_interval: list[int], slice_interval: list[i
             while optim_idx < num_optims:
                 injected_run: int = run_interval[run]
                 injected_slice: int = slice_interval[slice]
-                optim_name = OPTIM_NAMES[optim_idx]
+                optim_name = optim_names[optim_idx]
 
                 print(f"Generating and submitting job for {optim_name} run={injected_run}, slice={injected_slice}")
 
@@ -98,13 +97,16 @@ def run_pbs_many(root_dir: Path, run_interval: list[int], slice_interval: list[i
         run += 1
 
 if __name__ == "__main__":
-  root_dir = Path(__file__).parent.parent / "large/"
-  print(str(root_dir))
-  runs = list(range(10))
-  runs = runs[2:]
-  slices = list(range(4))
-  slices = slices[-1:]
-  run_pbs_many(root_dir=root_dir, run_interval = runs, slice_interval = slices)
+    root_dir = Path(__file__).parent.parent / "large/"
+    print(str(root_dir))
+    runs = list(range(10))
+    runs = runs[2:]
+    slices = list(range(4))
+    slices = slices[-1:]
+
+    optim_names = ["adam", "muon"]
+    optim_names = optim_names[1:]
+    run_pbs_many(root_dir=root_dir, run_interval = runs, slice_interval = slices, optim_names=optim_names)
 
 
 
