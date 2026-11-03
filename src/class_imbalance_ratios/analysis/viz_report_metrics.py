@@ -267,7 +267,7 @@ def viz_accuracy(dir_path: Path, summary_mode: str) -> None:
 
     NUM_PROPS_IN_CYCLE = 8
     # Cycle is (Adam Majority, Adam Minority) Train then Val --- (Muon Majority, Muon Minority) Train then Val
-    plot_cycler_settings = dict(color=['#D95F02', "#DB7E37", '#1F78B4', "#4F91BD", '#D95F02', "#DB7E37", '#1F78B4', "#4F91BD"], linestyle=['-', '-', '-', '-', '--', '--', '--', '--'], marker=['.'] * NUM_PROPS_IN_CYCLE, markersize=[2.5] * NUM_PROPS_IN_CYCLE, linewidth=[1.25] * NUM_PROPS_IN_CYCLE)
+    plot_cycler_settings = dict(color=['#D95F02', "#DB379C", '#1F78B4', "#4AD1C6"] * 2, linestyle=['-'] * 4 + ['--'] * 4, marker=['.'] * NUM_PROPS_IN_CYCLE, markersize=[2.5] * NUM_PROPS_IN_CYCLE, linewidth=[1.25] * NUM_PROPS_IN_CYCLE)
 
     curr_fig_ax_n_store = None 
     immutable_fig_ax_store = None 

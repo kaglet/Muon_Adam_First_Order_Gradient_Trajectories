@@ -29,17 +29,36 @@ class PlotOptions():
     mode: str 
     version: str 
     final_fig_name: str 
-    fill_colors: cycle = cycle(["#922FC4C9", "#B23BEDC8", "#FF04FFAC", "#C7CA2DC9", "#EEF146C8", "#FBFF1BC8"])
+    fill_colors: cycle = cycle(["#6E6E6EC8"])
     plot_name: Optional[str] = "generic"
+    opacities: cycle = cycle([0.6, 0.4, 0.2])
 
     def __post_init__(self) -> None:
         self.names: dict[str, Any] = dict(plot_type_name=self.plot_name, train_split=self.train_split, x_label = self.x_label, y_label = self.y_label, optim_name=self.optim_name, mode=self.mode, final_fig_name=self.final_fig_name, version=self.version)
         self.plot_name = "generic"
-        if self.optim_name.lower() == "muon":
-            self.fill_colors = cycle(["#44AAE1", "#70BAE2", "#A6CEE3"])
-        elif self.optim_name.lower() == "adam":
-            self.fill_colors = cycle(["#FFA126", "#FFAF46", "#FDBF6F"])
+        OPT_A_FILLS = [
+            "#FFA126", "#E35EA2",
+            "#FABB68", "#E985B6",
+            "#FDCE91", "#F3B2D0"
+        ]
+        OPT_B_FILLS = [
+            "#44AAE1", "#26B8A0",
+            "#81BFE0", "#5AD8C4",
+            "#B1CFE0", "#8FE7D7"
+        ]
 
+        subgroup_opacities = cycle([0.6, 0.6, 0.2, 0.2, 0.05, 0.05])
+        if self.optim_name.lower() == "muon":
+            self.fill_colors = cycle(OPT_A_FILLS[0::2])
+            if "subgroup" in self.final_fig_name.lower():
+                self.fill_colors = cycle(OPT_A_FILLS)
+                self.opacities = subgroup_opacities
+        elif self.optim_name.lower() == "adam":
+            self.fill_colors = cycle(OPT_B_FILLS[0::2])
+            if "subgroup" in self.final_fig_name.lower():
+                self.fill_colors = cycle(OPT_B_FILLS)
+                self.opacities = subgroup_opacities
+                
 @dataclass
 class LonePlotOptions(PlotOptions):
     def __post_init__(self) -> None:
@@ -93,19 +112,19 @@ class PlotManager(ABC):
         lower_vals = self._quantile_dfs["q25"].loc[:, og_col].values
         higher_vals = self._quantile_dfs["q75"].loc[:, og_col].values
         ax.fill_between(
-            index_vals, lower_vals, higher_vals, color=next(self._plot_options.fill_colors), alpha=0.3, label="Q25-75"
+            index_vals, lower_vals, higher_vals, alpha=next(self._plot_options.opacities), color=next(self._plot_options.fill_colors), label="Q25-75"
         )
 
         lower_vals = self._quantile_dfs["q10"].loc[:, og_col].values
         higher_vals = self._quantile_dfs["q90"].loc[:, og_col].values
         ax.fill_between(
-            index_vals, lower_vals, higher_vals, color=next(self._plot_options.fill_colors), alpha=0.3, label="Q10-90"
+            index_vals, lower_vals, higher_vals, alpha=next(self._plot_options.opacities), color=next(self._plot_options.fill_colors), label="Q10-90"
         )
 
         lower_vals = self._quantile_dfs["q5"].loc[:, og_col].values
         higher_vals = self._quantile_dfs["q95"].loc[:, og_col].values
         ax.fill_between(
-            index_vals, lower_vals, higher_vals, color=next(self._plot_options.fill_colors), alpha=0.3, label="Q25-75"
+            index_vals, lower_vals, higher_vals, alpha=next(self._plot_options.opacities), color=next(self._plot_options.fill_colors), label="Q25-75"
         )
 
 class LonePlotManager(PlotManager):
