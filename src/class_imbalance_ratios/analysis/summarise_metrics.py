@@ -223,10 +223,6 @@ def summarize_runs_metric(summary_modes: list[str], summary_mode_extras: dict[Li
             runs_mean_df = preagg_splits.mean()
             runs_mean_df.to_parquet(final_mode_paths["mean"])
 
-        if "std" in summary_modes:
-            runs_std_df = preagg_splits.std()
-            runs_std_df.to_parquet(final_mode_paths["std"])
-
         if "q5" in summary_modes:
             runs_q5_df = preagg_splits.quantile(q=0.05)
             runs_q5_df.to_parquet(final_mode_paths["q5"])
@@ -254,20 +250,6 @@ def summarize_runs_metric(summary_modes: list[str], summary_mode_extras: dict[Li
         if "q95" in summary_modes:
             runs_q95_df = preagg_splits.quantile(q=0.95)
             runs_q95_df.to_parquet(final_mode_paths["q95"])
-
-        if "upside_dev" in summary_modes:
-            runs_upside_dev = preagg_splits.agg(upside_dev)
-            runs_upside_dev.to_parquet(final_mode_paths["upside_dev"])
-
-        if "downside_dev" in summary_modes:
-            runs_downside_dev = preagg_splits.agg(downside_dev)
-            runs_downside_dev.to_parquet(final_mode_paths["downside_dev"])
-
-        if "skewness" in summary_modes:
-            runs_skewness = preagg_splits.skew()
-            runs_skewness.to_parquet(final_mode_paths["skewness"])
-
-        
 
 if __name__ == "__main__":
     pass

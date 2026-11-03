@@ -33,7 +33,7 @@ from src.base.lit_module.general_lit_module import DualOptLitModule
 from src.class_imbalance_ratios.conf_assembly_helpers.artificial_overrides_padder import ArtificialOverridesPadder
 from src.class_imbalance_ratios.datamodule.components.ratio_prepper import CountsPrepperFromRatio
 from src.class_imbalance_ratios.conf_assembly_helpers.group_names import shared_config_names
-from src.class_imbalance_ratios.conf_assembly_helpers.override_strings import adam_overrides, muon_overrides, autofill_exceptions
+from src.class_imbalance_ratios.small.override_strings import adam_overrides, muon_overrides, autofill_exceptions
 from src.train_and_val import train_and_val
 from lightning.pytorch.loggers import TensorBoardLogger, CSVLogger
 from torchvision.models import resnet18, resnet50, ResNet18_Weights, ResNet50_Weights
@@ -257,79 +257,3 @@ store.add_to_hydra_store(overwrite_ok=True)
 def pyaml(x):
     # for pretty printing configs
     print(to_yaml(x))
-
-# pyaml(store["hydra", "config"])
-
-if __name__ == "__main__":
-    """ 
-    Via CLI. 
-    Fix and pair run/seed (same value for ease) 
-    Then slice through the current experiment matches. 
-    Here there are 4 experiment ratios to test. 
-    """
-    log_file = Path(__file__).parent / "logs_run_with_cfg.log"
-    logging.basicConfig(filename=log_file, level=logging.DEBUG)
-
-    parser = argparse.ArgumentParser(
-        description="Script that adds 3 numbers from CMD"
-    )
-    parser.add_argument("--run", required=False, nargs="?", type=int, help="Enter `run`", default=0)
-    parser.add_argument("--seed", required=False, nargs="?", type=int, help="Enter `seed`", default=0)
-    parser.add_argument("--slice", required=False, nargs="?", type=int, help="Enter `slice`", default=0)
-    parser.add_argument("--ratio_seed", required=False, nargs="?", type=int, help="Enter `run_seed`", default=0)
-
-    args = parser.parse_args()
-
-    injected_run = args.run
-    injected_seed = args.seed
-    injected_slice = args.slice
-    injected_ratio_seed = args.ratio_seed
-
-    muon_overrides_map = ArtificialOverridesPadder(muon_overrides, autofill_exceptions, 4).overrides_map_as_store
-    muon_overrides_map.overwrite(
-        "++run_idx", 
-        [f"{injected_run}" for _ in list(range(4))]
-    )
-    muon_overrides_map.overwrite(
-        "++seed",
-        [f"{injected_seed}" for _ in list(range(4))]
-    )
-    muon_overrides_map.overwrite(
-        "++ratio_seed",
-        [f"{injected_ratio_seed}" for _ in list(range(4))]
-    )
-    curr_vals = muon_overrides_map.get_map_slice(injected_slice)
-
-    job = launch(
-        ExperimentConfig,
-        task_function,
-        config_name="muon_class_imbalance_ratios",
-        job_name="cls_imb_s_tests",
-        version_base="1.3",
-        overrides=curr_vals
-    )
-
-    adam_overrides_map = ArtificialOverridesPadder(adam_overrides, autofill_exceptions, 4).overrides_map_as_store
-
-    adam_overrides_map.overwrite(
-        "run_idx", 
-        [f"{injected_run}" for _ in list(range(4))]
-    )
-    adam_overrides_map.overwrite(
-        "seed",
-        [f"{injected_seed}" for _ in list(range(4))]
-    )
-    adam_overrides_map.overwrite(
-        "++ratio_seed",
-        [f"{injected_ratio_seed}" for _ in list(range(4))]
-    )
-    curr_vals = adam_overrides_map.get_map_slice(injected_slice)
-
-    job = launch(
-        ExperimentConfig,
-        task_function,
-        config_name="adam_class_imbalance_ratios",
-        job_name="cls_imb_s_tests",
-        version_base="1.3",
-        overrides=curr_vals
-    )

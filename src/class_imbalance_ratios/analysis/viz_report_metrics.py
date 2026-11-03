@@ -329,9 +329,12 @@ def viz_over_dir(dir_path: Path) -> None:
     subset_summary_modes = SUMMARY_MODES[0:] # Generate only a subset of modes especially if new modes are added in @./create_non_core_summaries.py
     for mode in subset_summary_modes: 
         viz_accuracy(dir_path=dir_path, summary_mode=mode)
-        # viz_loss(dir_path=dir_path, summary_mode=mode)
-        # viz_dot_prod(dir_path=dir_path, mode=mode)
-        # viz_mean_correlation(dir_path=dir_path, mode=mode)
+        viz_loss(dir_path=dir_path, summary_mode=mode)
+        viz_dot_prod(dir_path=dir_path, mode=mode)
+        viz_mean_correlation(dir_path=dir_path, mode=mode)
 
 if __name__ == "__main__":
-    viz_over_dir(cls_imb_s_outputs_dir)
+    dirs = [cls_imb_s_outputs_dir, cls_imb_l_outputs_dir]
+    subset_dirs = dirs[1:]
+    for dir in subset_dirs:
+        viz_over_dir(dir)

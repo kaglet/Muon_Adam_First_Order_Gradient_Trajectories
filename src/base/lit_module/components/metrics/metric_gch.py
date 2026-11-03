@@ -1,5 +1,6 @@
 from torchmetrics import Metric
 import torch 
+import torch.nn.functional as F
 __all__ = ["RGCH_Metric", "GCH_Metric"]
 
 class RGCH_Metric(Metric):
@@ -63,4 +64,18 @@ class GCH_Metric(RGCH_Metric):
         super().__init__(header, **kwargs)
 
 if __name__ == "__main__":
-    pass
+    def test_cosine_similarity():
+        prev_grad = torch.as_tensor([-100, 2, 9], dtype=torch.float32)
+        curr_grad = torch.as_tensor([50, 29, 3], dtype=torch.float32)
+        my_output = torch.sum(torch.mul(prev_grad, curr_grad)) / (prev_grad.norm() * curr_grad.norm())
+
+        with_dot = torch.dot(prev_grad.reshape(-1), curr_grad.reshape(-1)) / (prev_grad.norm() * curr_grad.norm())
+
+        prev_grad = prev_grad.reshape(-1) 
+        curr_grad = curr_grad.reshape(-1)
+        output = F.cosine_similarity(prev_grad, curr_grad, dim=0)
+
+        print("Torch cosine", output)
+        print("My output", my_output)
+        print("With torch dot", with_dot)
+        print(torch.equal(output, my_output))

@@ -33,7 +33,7 @@ from src.base.lit_module.general_lit_module import DualOptLitModule
 from src.class_imbalance_ratios.conf_assembly_helpers.artificial_overrides_padder import ArtificialOverridesPadder
 from src.class_imbalance_ratios.datamodule.components.ratio_prepper import CountsPrepperFromRatio
 from src.class_imbalance_ratios.conf_assembly_helpers.group_names import shared_config_names
-from src.class_imbalance_ratios.conf_assembly_helpers.override_strings import adam_overrides, muon_overrides, autofill_exceptions
+from src.class_imbalance_ratios.small.override_strings import adam_overrides, muon_overrides, autofill_exceptions
 from src.spurious_pix.datamodule.components.pixel_injection_map import PixelInjectionMap
 from src.spurious_pix.lit_module.components.simple_net import SpPixCNN
 from src.train_and_val import train_and_val
