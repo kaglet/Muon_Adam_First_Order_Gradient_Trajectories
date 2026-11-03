@@ -154,9 +154,9 @@ val_map = {k:v for k,v in zip(labels, val_class_counts)}
 test_class_counts = [500 for _ in range(cls_imb_s_num_classes)]
 test_map = {k:v for k,v in zip(labels, test_class_counts)}
 
-counts_prepper_cfg = builds(CountsPrepperFromRatio, ratio_seed="${ratio_seed}", downsampler_ratio=20, train_map=train_map, val_map=val_map, test_map=test_map)
+counts_prepper_cfg = builds(CountsPrepperFromRatio, ratio_seed="${ratio_seed}", downsampler_ratio="${downsampler_ratio}", train_map=train_map, val_map=val_map, test_map=test_map)
 
-runtime_experim_dir = "${my_root_dir}/outputs/${hydra.job.name}/${hydra.job.config_name}/multijob/R_${counts_prepper.downsampler_ratio}"
+runtime_experim_dir = "${my_root_dir}/outputs/${hydra.job.name}/${hydra.job.config_name}/multijob/R_${downsampler_ratio}"
 runtime_run_subdir = "${hydra:runtime.output_dir}/run_${run_idx}/" # This path is relative to cwd (current working dir) set by Hydra during program run, could use an interpolated function
 
 data_dir = "${my_root_dir}/data/"
