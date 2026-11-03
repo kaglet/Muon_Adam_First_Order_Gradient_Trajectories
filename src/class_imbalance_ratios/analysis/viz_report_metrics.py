@@ -88,7 +88,7 @@ def create_experiment_plot_managers(plot_options_type: Type[PlotOptions], plot_m
     """
     # There will be as many plots as there are versions * optims, 1 per optim and version
     # Each plot manager keeps state data only for optim and version
-    optims_dirs = sorted(outputs_dir.iterdir())
+    optims_dirs = sorted(outputs_dir.iterdir(), reverse=True)
     plots_managers = []
     fig_ax_n_store = [] if fig_ax_n_store is None else fig_ax_n_store
 
