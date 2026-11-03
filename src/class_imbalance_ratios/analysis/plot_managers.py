@@ -36,8 +36,9 @@ class PlotOptions():
     def __post_init__(self) -> None:
         self.names: dict[str, Any] = dict(plot_type_name=self.plot_name, train_split=self.train_split, x_label = self.x_label, y_label = self.y_label, optim_name=self.optim_name, mode=self.mode, final_fig_name=self.final_fig_name, version=self.version)
         self.plot_name = "generic"
+        # Fill order is majority then minority but draw order is all fill for 1 subgroup type then another
         OPT_A_FILLS = [
-            "#FFA126", "#E35EA2",
+            "#FFA126", "#E35EA2", 
             "#FABB68", "#E985B6",
             "#FDCE91", "#F3B2D0"
         ]
@@ -51,12 +52,12 @@ class PlotOptions():
         if self.optim_name.lower() == "muon":
             self.fill_colors = cycle(OPT_A_FILLS[0::2])
             if "subgroup" in self.final_fig_name.lower():
-                self.fill_colors = cycle(OPT_A_FILLS)
+                self.fill_colors = cycle(OPT_A_FILLS[0::2]+OPT_A_FILLS[1::2]) 
                 self.opacities = subgroup_opacities
         elif self.optim_name.lower() == "adam":
             self.fill_colors = cycle(OPT_B_FILLS[0::2])
             if "subgroup" in self.final_fig_name.lower():
-                self.fill_colors = cycle(OPT_B_FILLS)
+                self.fill_colors = cycle(OPT_B_FILLS[0::2]+OPT_B_FILLS[1::2])
                 self.opacities = subgroup_opacities
                 
 @dataclass
