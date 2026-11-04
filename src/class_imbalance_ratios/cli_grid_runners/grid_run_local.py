@@ -69,7 +69,7 @@ def run_local_many(optim_names: list[str], root_dir: Path, run_interval: list[in
 
 if __name__ == "__main__":
     dirs = [Path(__file__).parent.parent / "small/", Path(__file__).parent.parent / "large/"]
-
+    dirs = dirs[-1:]
     for root_dir in dirs:
         print(str(root_dir))
         runs = list(range(10))
