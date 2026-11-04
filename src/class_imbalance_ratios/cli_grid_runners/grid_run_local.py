@@ -9,8 +9,8 @@ import time
 from typing import Tuple
 
 my_log_file = Path(__file__).parent / "logs/edit_run_txt.log"
+my_log_file.touch(exist_ok=True)
 logging.basicConfig(filename=my_log_file, level=logging.DEBUG)
-
 
 def react_to_limits(msg: str, retry_counter: int, optim_idx: int, SLEEP_TIME: int) -> dict[str, int]:
     """
