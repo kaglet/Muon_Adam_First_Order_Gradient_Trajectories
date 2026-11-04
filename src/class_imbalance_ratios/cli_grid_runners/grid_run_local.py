@@ -33,7 +33,7 @@ def react_to_fatal_err(msg: str) -> bool:
 
     return False
 
-def run_pbs_many(root_dir: Path, run_interval: list[int], slice_interval: list[int], MAX_RETRIES_IDX: int = 100):
+def run_local_many(root_dir: Path, run_interval: list[int], slice_interval: list[int], MAX_RETRIES_IDX: int = 100):
     retry_counter = 0
     
     with open(root_dir.resolve() / "local_script.txt", "r") as f:
@@ -90,8 +90,13 @@ def run_pbs_many(root_dir: Path, run_interval: list[int], slice_interval: list[i
         run += 1
 
 if __name__ == "__main__":
-  root_dir = Path(__file__).parent.parent.parent
-  print(str(root_dir))
-  runs = list(range(2))
-  slices = list(range(4))
-  run_pbs_many(root_dir=root_dir, run_interval = runs, slice_interval = slices)
+    dirs = [Path(__file__).parent.parent / "small/", Path(__file__).parent.parent / "large/"]
+
+    for root_dir in dirs:
+        print(str(root_dir))
+        runs = list(range(10))
+        # runs = runs[3:]
+        slices = list(range(3))
+
+        optim_names = ["adam", "muon"]
+        run_local_many(root_dir=root_dir, run_interval = runs, slice_interval = slices)
