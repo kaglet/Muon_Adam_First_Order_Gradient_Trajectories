@@ -7,7 +7,7 @@ from hydra_zen import launch, zen
 from src.class_imbalance_ratios.conf_assembly_helpers.artificial_overrides_padder import ArtificialOverridesPadder
 from src.class_imbalance_ratios.small.override_strings import adam_overrides, autofill_exceptions
 
-from src.class_imbalance_ratios.large.cfg_to_zen_store import ExperimentConfig
+from src.class_imbalance_ratios.small.cfg_to_zen_store import ExperimentConfig
 from src.train_and_val import train_and_val
 
 import lightning.pytorch as pl
