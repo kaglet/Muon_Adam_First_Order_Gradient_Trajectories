@@ -73,8 +73,8 @@ if __name__ == "__main__":
     for root_dir in dirs:
         print(str(root_dir))
         runs = list(range(10))
-        # runs = runs[3:]
         slices = list(range(3))
 
+        slices = slices[1:1]
         optim_names = ["adam", "muon"]
         run_local_many(optim_names=optim_names, root_dir=root_dir, run_interval = runs, slice_interval = slices)
