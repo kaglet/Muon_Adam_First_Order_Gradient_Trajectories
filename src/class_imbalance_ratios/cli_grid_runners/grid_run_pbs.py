@@ -98,12 +98,12 @@ def run_pbs_many(optim_names: list[str], root_dir: Path, run_interval: list[int]
 
 if __name__ == "__main__":
     dirs = [Path(__file__).parent.parent / "small/", Path(__file__).parent.parent / "large/"]
-    dirs = dirs[:0]
+    dirs = dirs[0::2]
     for root_dir in dirs:
         print(str(root_dir))
         runs = list(range(10))
         slices = list(range(3))
-        slices = slices[-1:]
+        slices = slices[1:]
         optim_names = ["adam", "muon"]
         run_pbs_many(root_dir=root_dir, run_interval = runs, slice_interval = slices, optim_names=optim_names)
 
