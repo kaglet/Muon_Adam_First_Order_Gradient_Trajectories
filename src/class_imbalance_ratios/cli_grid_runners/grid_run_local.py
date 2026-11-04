@@ -37,47 +37,35 @@ def react_to_fatal_err(msg: str) -> bool:
     return False
 
 def run_local_many(optim_names: list[str], root_dir: Path, run_interval: list[int], slice_interval: list[int], MAX_RETRIES_IDX: int = 100):
-    retry_counter = 0
-
-    num_optims = len(optim_names)
-    run_length = len(run_interval)
-    slice_length = len(slice_interval)
-    run = 0
-    while run < run_length:
-        slice = 0
-        while slice < slice_length:
-            optim_idx = 0
-            while optim_idx < num_optims:
-                injected_run: int = run_interval[run]
-                injected_slice: int = slice_interval[slice]
-                optim_name = optim_names[optim_idx]
-
+    for injected_run in run_interval:
+        for injected_slice in slice_interval:
+            for optim_name in optim_names:
                 print(f"Generating and submitting job for {optim_name} run={injected_run}, slice={injected_slice}")
 
-                with open(root_dir.resolve() / f"run_{optim_name}.txt", "r") as f:
+                template_path = root_dir.resolve() / f"run_{optim_name}.txt"
+                with open(template_path, "r", encoding="utf-8") as f:
                     template_content = f.read()
 
-                job_script = template_content
-                job_script = job_script.replace("{{run}}", str(injected_run)).replace("{{seed}}", str(injected_run))
-                job_script = job_script.replace("{{slice}}", str(injected_slice)).replace("{{ratio_seed}}", str(injected_slice))
-                
-                temp_filename = "temp_generated_run.txt"
-                with open(temp_filename, "w") as f:
-                    f.write(job_script)
+                # Clean whitespace/newlines and perform string injections
+                job_cmd = template_content.strip()
+                job_cmd = job_cmd.replace("{{run}}", str(injected_run)).replace("{{seed}}", str(injected_run))
+                job_cmd = job_cmd.replace("{{slice}}", str(injected_slice)).replace("{{ratio_seed}}", str(injected_slice))
 
-                logging.debug("=== LOGGING TXT SCRIPT ===")
-                logging.debug(job_script)
+                logging.debug("=== EXECUTING SCRIPT COMMAND ===")
+                logging.debug(job_cmd)
 
-                # Launch TXT script
+                # Ensure output streams directly to console without hanging
                 attempt = subprocess.run(
-                    job_script,
-                    text=True, 
-                    shell=True, 
+                    job_cmd,
+                    shell=True,
+                    text=True,
+                    check=False
                 )
 
-            slice += 1
-
-        run += 1
+                if attempt.returncode != 0:
+                    print(f"FAILED: {optim_name} run={injected_run}, slice={injected_slice} returned code {attempt.returncode}")
+                else:
+                    print(f"COMPLETED: {optim_name} run={injected_run}, slice={injected_slice}")
 
 if __name__ == "__main__":
     dirs = [Path(__file__).parent.parent / "small/", Path(__file__).parent.parent / "large/"]
