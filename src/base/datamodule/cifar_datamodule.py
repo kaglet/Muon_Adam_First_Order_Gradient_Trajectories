@@ -19,7 +19,7 @@ __all__ = ["CIFAR10DataModule", "CIFAR100DataModule"]
 
 class CIFARDataModule(L.LightningDataModule):
     # TODO" Unify the data directory from env see old template
-    def __init__(self, train_transforms: transforms.Compose, val_transforms: transforms.Compose, test_transforms: transforms.Compose, dataset: Type[CIFAR10] | Type[CIFAR100] = CIFAR10, data_dir: str = "./data", batch_size: int = 2048, num_workers: int = 8, persistent_workers:bool=False, download:bool=False) -> None:
+    def __init__(self, train_transforms: transforms.Compose, val_transforms: transforms.Compose, test_transforms: transforms.Compose, dataset: Type[CIFAR10] | Type[CIFAR100] = CIFAR10, data_dir: str = "./data", batch_size: int = 2048, num_workers: int = 8, persistent_workers:bool=False, download:bool=True) -> None:
         super().__init__()
         self.download = download
         self.data_dir = data_dir
