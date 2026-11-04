@@ -1,1 +1,1 @@
-pixi run cls_imb_s --run={{run}} --seed={{seed}} --slice={{slice}} --ratio_seed={{ratio_seed}}
+pixi run muon_cls_imb_s --run={{run}} --seed={{seed}} --slice={{slice}} --ratio_seed={{ratio_seed}}

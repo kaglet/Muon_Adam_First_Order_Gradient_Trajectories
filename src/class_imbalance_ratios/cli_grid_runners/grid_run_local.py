@@ -70,10 +70,9 @@ def run_local_many(optim_names: list[str], root_dir: Path, run_interval: list[in
 
                 # Launch TXT script
                 attempt = subprocess.run(
-                    ["python", temp_filename],
+                    job_script,
                     text=True, 
                     shell=True, 
-                    capture_output=True, 
                 )
 
                 if attempt.returncode == 0:
@@ -82,7 +81,7 @@ def run_local_many(optim_names: list[str], root_dir: Path, run_interval: list[in
                     msg = attempt.stderr.lower()
                     fatal_detected = react_to_fatal_err(msg=msg)
                     if fatal_detected:
-                        print(f"FATAL: Unexpected cluster error: {attempt.stderr}")
+                        print(f"FATAL: Unexpected local error: {attempt.stderr}")
                         sys.exit(1)
 
                 SLEEP_TIME = 60 * 60 # (sec x hr = 1hr default)
