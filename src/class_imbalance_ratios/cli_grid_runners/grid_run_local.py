@@ -69,12 +69,12 @@ def run_local_many(optim_names: list[str], root_dir: Path, run_interval: list[in
 
 if __name__ == "__main__":
     dirs = [Path(__file__).parent.parent / "small/", Path(__file__).parent.parent / "large/"]
-    dirs = dirs[-1:]
+    dirs = dirs[1:]
     for root_dir in dirs:
         print(str(root_dir))
         runs = list(range(10))
-        slices = list(range(3))
+        slices = list(range(4))
 
-        slices = slices[1:1]
+        slices = slices[3:]
         optim_names = ["adam", "muon"]
         run_local_many(optim_names=optim_names, root_dir=root_dir, run_interval = runs, slice_interval = slices)
