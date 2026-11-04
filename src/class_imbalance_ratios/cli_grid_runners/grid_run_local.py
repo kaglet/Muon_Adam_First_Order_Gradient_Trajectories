@@ -75,24 +75,6 @@ def run_local_many(optim_names: list[str], root_dir: Path, run_interval: list[in
                     shell=True, 
                 )
 
-                if attempt.returncode == 0:
-                    msg = attempt.stdout.lower()
-                else:
-                    msg = attempt.stderr.lower()
-                    fatal_detected = react_to_fatal_err(msg=msg)
-                    if fatal_detected:
-                        print(f"FATAL: Unexpected local error: {attempt.stderr}")
-                        sys.exit(1)
-
-                SLEEP_TIME = 60 * 60 # (sec x hr = 1hr default)
-                reaction = react_to_limits(msg=msg, retry_counter=retry_counter, optim_idx=optim_idx, SLEEP_TIME=SLEEP_TIME)
-                retry_counter = reaction["retry_counter"]
-                optim_idx = reaction["optim_idx"]
-
-                if retry_counter > MAX_RETRIES_IDX:
-                    print(f"FATAL: Reached max retry limit idx: {MAX_RETRIES_IDX}. Exiting...")
-                    sys.exit(1)
-
             slice += 1
 
         run += 1
