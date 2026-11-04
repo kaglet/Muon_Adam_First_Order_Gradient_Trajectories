@@ -29,7 +29,7 @@ NO_LIMIT_VAL_BATCHES = "null"
 adam_overrides = {
     f"{run_idx}": "0",
     f"{seed}": "0",
-    f"{downsampler_ratio}": [10, 5, 1],
+    f"{downsampler_ratio}": [20, 10, 5, 1],
     f"{my_root_dir}": relative_root_raw,
 
     f"{group_names.models}": shared_config_names.experiment, 
@@ -63,7 +63,7 @@ adam_overrides = {
 muon_overrides = {
     f"{run_idx}": "0",
     f"{seed}": "0",
-    f"{downsampler_ratio}": [10, 5, 1],
+    f"{downsampler_ratio}": [20, 10, 5, 1],
     f"{my_root_dir}": relative_root_raw,
 
     f"{group_names.models}": shared_config_names.experiment, 
