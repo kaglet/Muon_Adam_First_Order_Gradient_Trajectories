@@ -56,8 +56,8 @@ adam_overrides = {
     f"++{group_names.trainer}.limit_val_batches": SMALL_LIMIT_VAL_BATCHES,
     f"++{group_names.trainer}.max_epochs": SMALL_MAX_EPOCHS,
 
-    f"++{group_names.datamodule}.num_workers": SMALL_NUM_WORKERS,
-    f"++{group_names.datamodule}.persistent_workers": SMALL_PERSISTENT_WORKERS, 
+    f"++{group_names.datamodule}.num_workers": 2,
+    f"++{group_names.datamodule}.persistent_workers": "True", 
 }
 
 muon_overrides = {
@@ -90,8 +90,8 @@ muon_overrides = {
     f"++{group_names.trainer}.limit_val_batches": SMALL_LIMIT_VAL_BATCHES,
     f"++{group_names.trainer}.max_epochs": SMALL_MAX_EPOCHS,
 
-    f"++{group_names.datamodule}.num_workers": SMALL_NUM_WORKERS,
-    f"++{group_names.datamodule}.persistent_workers": SMALL_PERSISTENT_WORKERS, 
+    f"++{group_names.datamodule}.num_workers": 2,
+    f"++{group_names.datamodule}.persistent_workers": "True", 
 }
 
 if __name__ == "__main__":
