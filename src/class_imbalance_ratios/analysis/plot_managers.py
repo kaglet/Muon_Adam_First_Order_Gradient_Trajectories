@@ -125,7 +125,7 @@ class PlotManager(ABC):
         lower_vals = self._quantile_dfs["q5"].loc[:, og_col].values
         higher_vals = self._quantile_dfs["q95"].loc[:, og_col].values
         ax.fill_between(
-            index_vals, lower_vals, higher_vals, alpha=next(self._plot_options.opacities), color=next(self._plot_options.fill_colors), label="Q25-75"
+            index_vals, lower_vals, higher_vals, alpha=next(self._plot_options.opacities), color=next(self._plot_options.fill_colors), label="Q5-95"
         )
 
 class LonePlotManager(PlotManager):
