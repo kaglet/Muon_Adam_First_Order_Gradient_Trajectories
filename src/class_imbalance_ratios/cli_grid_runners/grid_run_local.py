@@ -75,6 +75,6 @@ if __name__ == "__main__":
         runs = list(range(10))
         slices = list(range(4))
 
-        slices = slices[3:]
+        slices = slices[1:]
         optim_names = ["adam", "muon"]
         run_local_many(optim_names=optim_names, root_dir=root_dir, run_interval = runs, slice_interval = slices)

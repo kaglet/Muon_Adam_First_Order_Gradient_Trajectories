@@ -1,4 +1,5 @@
 from functools import partial
+import os
 from hydra_zen import instantiate, just, make_custom_builds_fn
 from hydra_zen.third_party.pydantic import validates_with_pydantic
 from hydra_zen.third_party.beartype import validates_with_beartype
@@ -67,3 +68,5 @@ print(model50.conv1)
 model18 = resnet18()
 print(model18.fc)
 print(model18.conv1)
+
+print(f"CUDA JIT Force Level: {os.environ.get('CUDA_MODULE_LOADING', 'Default')}")

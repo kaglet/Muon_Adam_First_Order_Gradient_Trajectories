@@ -1,51 +1,25 @@
 # syntax=docker/dockerfile:1
+FROM ghcr.io/prefix-dev/pixi:latest
 
-# Comments are provided throughout this file to help you get started.
-# If you need more help, visit the Dockerfile reference guide at
-# https://docs.docker.com/go/dockerfile-reference/
-
-# Want to help us make this template better? Share your feedback here: https://forms.gle/ybq9Krt8jtBL3iCk7
-
-ARG PYTHON_VERSION=3.13.16
-FROM python:${PYTHON_VERSION}-slim as base
-
-# Prevents Python from writing pyc files.
-ENV PYTHONDONTWRITEBYTECODE=1
-
-# Keeps Python from buffering stdout and stderr to avoid situations where
-# the application crashes without emitting any logs due to buffering.
 ENV PYTHONUNBUFFERED=1
-
 WORKDIR /app
 
-# Create a non-privileged user that the app will run under.
-# See https://docs.docker.com/go/dockerfile-user-best-practices/
-ARG UID=10001
-RUN adduser \
-    --disabled-password \
-    --gecos "" \
-    --home "/nonexistent" \
-    --shell "/sbin/nologin" \
-    --no-create-home \
-    --uid "${UID}" \
-    appuser
+# Git pull for Muon optim
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends git ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
 
-# Download dependencies as a separate step to take advantage of Docker's caching.
-# Leverage a cache mount to /root/.cache/pip to speed up subsequent builds.
-# Leverage a bind mount to requirements.txt to avoid having to copy them into
-# into this layer.
-RUN --mount=type=cache,target=/root/.cache/pip \
-    --mount=type=bind,source=requirements.txt,target=requirements.txt \
-    python -m pip install -r requirements.txt
+# Copy the manifest and lockfile first so Docker can reuse the dependency-install layer.
+COPY pixi.toml pixi.lock ./
 
-# Switch to the non-privileged user to run the application.
-USER appuser
+# Copy the rest of the project.
+COPY ./data/ ./data/     
 
-# Copy the source code into the container.
-COPY . .
+# Install the Linux environment. This assumes pixi.lock is present and up to date.
+RUN --mount=type=cache,target=/app/.pixi \
+    CONDA_OVERRIDE_CUDA=12.0 pixi install --locked -e default
 
-# Expose the port that the application listens on.
-EXPOSE 8000
+COPY ./src/ ./src/
 
-# Run the application.
-CMD pixi run batch_run_local
+# Run the task and leave its output visible in the terminal.
+CMD ["pixi", "run", "-e", "default", "grid_run_local"]

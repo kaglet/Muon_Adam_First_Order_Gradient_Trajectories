@@ -4,6 +4,26 @@
 # For more help, visit the .dockerignore file reference guide at
 # https://docs.docker.com/go/build-context-dockerignore/
 
+# Python
+.pixi/
+*.py[cod]
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+
+# Jupyter
+**/.ipynb_checkpoints/
+*.ipynb
+
+# Project scope
+**/report/
+**/MNIST/
+**/CelebA_custom/
+**/outputs/
+
+# Defaults
 **/.DS_Store
 **/__pycache__
 **/.venv
@@ -11,6 +31,8 @@
 **/.dockerignore
 **/.env
 **/.git
+**/.github 
+**/cli_scripts
 **/.gitignore
 **/.project
 **/.settings
@@ -30,5 +52,21 @@
 **/obj
 **/secrets.dev.yaml
 **/values.dev.yaml
+**/*.7z.tar
+**/*.tar.gz
 LICENSE
 README.md
+*.csv 
+*.parquet
+*.jpg 
+*.txt
+*.tar
+
+tests/
+pytest_cache/
+.coverage
+
+# Secrets — never let these into an image
+.env
+*.pem
+*.key
