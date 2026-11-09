@@ -33,7 +33,7 @@ def train_and_val(
     seed: int
 ):
     torch.set_float32_matmul_precision(precision="high")
-    print(f"Executing run {run_idx}") 
+    # print(f"Executing run {run_idx}") 
     params = params_cache(model=model_cache)
     optims = [optim(params) for optim, params in zip(optims_cache, params)]
     schdlrs = [schdlrs_cache(optimizer=optims[0]) for _ in optims]
