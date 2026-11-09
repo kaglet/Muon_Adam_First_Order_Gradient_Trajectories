@@ -1,43 +1,41 @@
+# syntax=docker/dockerfile:1
+
 # ==========================================
 # Stage 1: Builder — Installs dependencies
 # ==========================================
 FROM ghcr.io/prefix-dev/pixi:latest AS builder
 
 WORKDIR /app
+ENV CONDA_OVERRIDE_CUDA=12.0
 
 # Install git if needed for dependencies
 RUN apt-get update \
     && apt-get install -y --no-install-recommends git ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy dependency manifests and data (if required for build tasks)
+# Copy dependency manifests
 COPY pixi.toml pixi.lock ./
-COPY ./data/ ./data/
 
-# Install the environment into /app/.pixi
-RUN CONDA_OVERRIDE_CUDA=12.0 pixi install --locked -e default
+# Install the environment
+RUN pixi install --locked -e default
 
-# Generate a shell-hook activation script so we don't need pixi binaries in runtime
-RUN pixi shell-hook -e default > /shell-hook.sh \
-    && echo 'exec "$@"' >> /shell-hook.sh
 
 # ==========================================
-# Stage 2: Runtime — Clean, lightweight image
+# Stage 2: Runtime — Clean final image
 # ==========================================
 FROM ghcr.io/prefix-dev/pixi:latest AS runtime
 
 WORKDIR /app
+ENV PYTHONUNBUFFERED=1
 
-# Copy only the pre-compiled environment and shell hook from builder
+# Copy the pre-built .pixi environment and manifests from builder
 COPY --from=builder /app/.pixi /app/.pixi
-COPY --from=builder /shell-hook.sh /shell-hook.sh
+COPY --from=builder /app/pixi.toml /app/pixi.toml
+COPY --from=builder /app/pixi.lock /app/pixi.lock
+
+# Copy data and source code (changes here will NEVER re-trigger pixi install)
 COPY ./data/ ./data/
 COPY ./src/ ./src/
 
-ENV PYTHONUNBUFFERED=1
-
-# Use the shell hook as entrypoint to activate the environment automatically
-ENTRYPOINT ["/bin/bash", "/shell-hook.sh"]
-
-# Run your task
+# Run the task directly using Pixi (since Pixi is built into this base image)
 CMD ["pixi", "run", "-e", "default", "grid_run_local"]
