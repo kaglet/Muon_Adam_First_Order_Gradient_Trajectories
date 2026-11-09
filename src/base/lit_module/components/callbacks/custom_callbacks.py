@@ -40,7 +40,7 @@ class StoreAllGCH(Callback):
         for i, p in enumerate(self.trainable_params):
             assert p.grad is not None, "None gradients detected, debug optimizer/s invoked on current step"
 
-            curr_grad = p.grad.clone().detach().reshape(-1).cpu()
+            curr_grad = p.grad.clone().detach().reshape(-1)
             per_layer_grads.append(curr_grad) 
 
             # Do not compute dot product if record does not exist

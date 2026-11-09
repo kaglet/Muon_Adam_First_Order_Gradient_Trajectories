@@ -278,7 +278,7 @@ if __name__ == "__main__":
         viz_img(img, label=int(target))
 
         i += 1
-        logging.debug("Batch {}\n :: Unique Targets {}".format(i, list(torch.unique(targets.detach().clone().cpu()))))
+        logging.debug("Batch {}\n :: Unique Targets {}".format(i, list(torch.unique(targets.detach().clone()))))
 
     # logging.debug("---- VAL DATALOADER NEXT --- \n")
     # j = 0
@@ -288,4 +288,4 @@ if __name__ == "__main__":
 
     #     viz_img(img, label=targets[0])
     #     j += 1
-    #     logging.debug("Batch {}\n :: Unique Targets {}".format(j, list(torch.unique(targets.detach().clone().cpu()))))
+    #     logging.debug("Batch {}\n :: Unique Targets {}".format(j, list(torch.unique(targets.detach().clone()))))
