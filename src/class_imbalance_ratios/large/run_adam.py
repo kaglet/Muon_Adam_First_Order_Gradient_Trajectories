@@ -8,6 +8,7 @@ from src.class_imbalance_ratios.conf_assembly_helpers.artificial_overrides_padde
 from src.class_imbalance_ratios.large.override_strings import adam_overrides, autofill_exceptions, muon_overrides
 
 from src.class_imbalance_ratios.large.cfg_to_zen_store import ExperimentConfig
+from src.class_imbalance_ratios.logs.log_experiment_details import print_experim_info
 from src.train_and_val import train_and_val
 
 import lightning.pytorch as pl
@@ -56,6 +57,7 @@ if __name__ == "__main__":
     )
     curr_vals = adam_overrides_map.get_map_slice(injected_slice)
 
+    print_experim_info(curr_vals)
     job = launch(
         ExperimentConfig,
         task_function,

@@ -5,6 +5,7 @@ from pathlib import Path
 from hydra_zen import launch, zen
 
 from src.class_imbalance_ratios.conf_assembly_helpers.artificial_overrides_padder import ArtificialOverridesPadder
+from src.class_imbalance_ratios.logs.log_experiment_details import print_experim_info
 from src.class_imbalance_ratios.small.override_strings import adam_overrides, autofill_exceptions
 
 from src.class_imbalance_ratios.small.cfg_to_zen_store import ExperimentConfig
@@ -55,6 +56,8 @@ if __name__ == "__main__":
         [f"{injected_ratio_seed}" for _ in list(range(4))]
     )
     curr_vals = adam_overrides_map.get_map_slice(injected_slice)
+
+    print_experim_info(curr_vals)
 
     job = launch(
         ExperimentConfig,
