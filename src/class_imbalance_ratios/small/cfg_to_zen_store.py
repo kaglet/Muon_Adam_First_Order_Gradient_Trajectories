@@ -127,7 +127,7 @@ trainer_cfg = pbuilds(
     devices=1, 
     enable_checkpointing = False,
     # precision = "bf16-mixed",
-    callbacks=[builds(StoreAllGCH), builds(DebugCallback), builds(TimerCallback)]
+    callbacks=[builds(StoreAllGCH)]
 )  
 
 # ---- DATAMODULE CONFIGS START ---- #
