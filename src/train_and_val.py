@@ -32,7 +32,7 @@ def train_and_val(
     run_idx: int,
     seed: int
 ):
-    torch.set_float32_matmul_precision(precision="high")
+    torch.set_float32_matmul_precision(precision="medium")
     # print(f"Executing run {run_idx}") 
     params = params_cache(model=model_cache)
     optims = [optim(params) for optim, params in zip(optims_cache, params)]

@@ -117,6 +117,7 @@ csv_logger_cfg = [
 # Define base trainer cfg
 trainer_cfg = pbuilds(
     pl.Trainer, 
+    profiler="simple",
     num_sanity_val_steps = 0,
     max_epochs=20,
     deterministic=True,
