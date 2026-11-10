@@ -78,7 +78,7 @@ if __name__ == "__main__":
 
     for root_dir in dirs:
         print(str(root_dir))
-        runs = list(range(4,10)) # TODO: Allow this to be changed from terminal
+        runs = list(range(0,10)) # TODO: Allow this to be changed from terminal
         slices = list(range(len(downsampler_ratio_values))) # TODO: Change this to be size of downsampler ratio 
 
         slices = slices
