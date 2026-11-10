@@ -8,6 +8,8 @@ import os
 import time
 from typing import Tuple
 
+from src.class_imbalance_ratios.small.override_strings import downsampler_ratio_values
+
 my_log_file = Path(__file__).parent / "logs/edit_run_txt.log"
 os.makedirs(my_log_file.parent, exist_ok=True)
 with open(my_log_file, "a") as file:
@@ -68,13 +70,17 @@ def run_local_many(optim_names: list[str], root_dir: Path, run_interval: list[in
                     print(f"COMPLETED: {optim_name} run={injected_run}, slice={injected_slice}")
 
 if __name__ == "__main__":
-    dirs = [Path(__file__).parent.parent / "small/", Path(__file__).parent.parent / "large/"]
-    dirs = dirs
+    subtype = "small" 
+    if subtype == "small":
+        dirs = [Path(__file__).parent.parent / "small/"]
+    else: 
+        dirs = [Path(__file__).parent.parent / "large/"]
+
     for root_dir in dirs:
         print(str(root_dir))
-        runs = list(range(10))
-        slices = list(range(4))
+        runs = list(range(4,10)) # TODO: Allow this to be changed from terminal
+        slices = list(range(len(downsampler_ratio_values))) # TODO: Change this to be size of downsampler ratio 
 
-        slices = slices[1:]
+        slices = slices
         optim_names = ["adam", "muon"]
         run_local_many(optim_names=optim_names, root_dir=root_dir, run_interval = runs, slice_interval = slices)

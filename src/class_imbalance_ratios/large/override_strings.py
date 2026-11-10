@@ -3,10 +3,11 @@ from pathlib import Path
 from src.base.group_name_store import group_names
 from src.class_imbalance_ratios.conf_assembly_helpers.group_names import shared_config_names
 
-__all__ = ["adam_overrides", "muon_overrides", "autofill_exceptions"]
+__all__ = ["adam_overrides", "muon_overrides", "autofill_exceptions", "downsampler_ratio_values"]
 
 cfg_key_downsampler = f"++{group_names.counts_prepper}.downsampler_ratio"
 downsampler_ratio = "++downsampler_ratio"
+downsampler_ratio_values = [20, 1]
 autofill_exceptions = [downsampler_ratio]
 run_idx = "++run_idx"
 seed = "++seed"
@@ -28,7 +29,7 @@ NO_LIMIT_VAL_BATCHES = "null"
 adam_overrides = {
     f"{run_idx}": "0",
     f"{seed}": "0",
-    f"{downsampler_ratio}": [20,10, 5, 1],
+    f"{downsampler_ratio}": downsampler_ratio_values,
     f"{my_root_dir}": relative_root_raw,
 
     f"{group_names.models}": shared_config_names.experiment, 
@@ -51,18 +52,18 @@ adam_overrides = {
     f"++{group_names.parameters_set}.use_layer_recs": "False",
     f"++{group_names.parameters_set}.eps": 1e-8, # Not given
         
-    f"++{group_names.trainer}.limit_train_batches": SMALL_LIMIT_TRAIN_BATCHES,
-    f"++{group_names.trainer}.limit_val_batches": SMALL_LIMIT_VAL_BATCHES,
-    f"++{group_names.trainer}.max_epochs": SMALL_MAX_EPOCHS,
+    f"++{group_names.trainer}.limit_train_batches": NO_LIMIT_TRAIN_BATCHES,
+    f"++{group_names.trainer}.limit_val_batches": NO_LIMIT_VAL_BATCHES,
+    f"++{group_names.trainer}.max_epochs": 50,
 
-    f"++{group_names.datamodule}.num_workers": SMALL_NUM_WORKERS,
-    f"++{group_names.datamodule}.persistent_workers": SMALL_PERSISTENT_WORKERS, 
+    f"++{group_names.datamodule}.num_workers": 2,
+    f"++{group_names.datamodule}.persistent_workers": True, 
 }
 
 muon_overrides = {
     f"{run_idx}": "0",
     f"{seed}": "0",
-    f"{downsampler_ratio}": [20,10, 5, 1],
+    f"{downsampler_ratio}": downsampler_ratio_values,
     f"{my_root_dir}": relative_root_raw,
 
     f"{group_names.models}": shared_config_names.experiment, 
@@ -85,12 +86,12 @@ muon_overrides = {
     f"++{group_names.parameters_set}.use_layer_recs": "False",
     f"++{group_names.parameters_set}.eps": 1e-8, # Not given - Use default MuonWithAuxAdam
 
-    f"++{group_names.trainer}.limit_train_batches": SMALL_LIMIT_TRAIN_BATCHES,
-    f"++{group_names.trainer}.limit_val_batches": SMALL_LIMIT_VAL_BATCHES,
-    f"++{group_names.trainer}.max_epochs": SMALL_MAX_EPOCHS,
+    f"++{group_names.trainer}.limit_train_batches": NO_LIMIT_TRAIN_BATCHES,
+    f"++{group_names.trainer}.limit_val_batches": NO_LIMIT_VAL_BATCHES,
+    f"++{group_names.trainer}.max_epochs": 50,
 
-    f"++{group_names.datamodule}.num_workers": SMALL_NUM_WORKERS,
-    f"++{group_names.datamodule}.persistent_workers": SMALL_PERSISTENT_WORKERS, 
+    f"++{group_names.datamodule}.num_workers": 2,
+    f"++{group_names.datamodule}.persistent_workers": True, 
 }
 
 if __name__ == "__main__":
