@@ -334,7 +334,11 @@ def viz_over_dir(dir_path: Path) -> None:
         viz_mean_correlation(dir_path=dir_path, mode=mode)
 
 if __name__ == "__main__":
-    dirs = [cls_imb_s_outputs_dir, cls_imb_l_outputs_dir]
-    subset_dirs = dirs[1:]
-    for dir in subset_dirs:
+    subtype = "small"
+    if subtype == "small":
+        dirs = [cls_imb_s_outputs_dir]
+    else: 
+        dirs = [cls_imb_l_outputs_dir]
+        
+    for dir in dirs:
         viz_over_dir(dir)

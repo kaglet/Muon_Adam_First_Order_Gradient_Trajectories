@@ -157,7 +157,11 @@ def summarize_all(dir: Path):
     )
 
 if __name__ == "__main__":
-    dirs = [cls_imb_s_outputs_dir, cls_imb_l_outputs_dir]
-    subset_dirs = dirs[1:]
-    for dir in subset_dirs:
+    subtype = "small"
+    if subtype == "small":
+        dirs = [cls_imb_s_outputs_dir]
+    else: 
+        dirs = [cls_imb_l_outputs_dir]
+
+    for dir in dirs:
         summarize_all(dir)
