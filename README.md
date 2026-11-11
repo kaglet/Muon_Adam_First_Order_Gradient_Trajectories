@@ -49,19 +49,29 @@ All reported metrics are over n runs, obtaining a mean, and quantile distributio
 To replicate the current available experiments without issue the only hardware requirement is use of windows and a single GPU. Alternate instructions are present for runs on a linux cluster such as CHPC (also used):
 
 (1) Install [pixi](https://pixi.prefix.dev/latest/installation/) for env management = 2-5min.
+
 (2) Install [git](https://git-scm.com/install/windows) = 2-5min.
+
 (3) With GitHub, fork and clone this repo. Or download as zip and unpack. 
+
 (4) In any terminal `cd` to within project root directory. 
+
 (5) Run `pixi install`. (On chpc run `CONDA_OVERRIDE_CUDA=12.0 pixi install`)
+
 (6) Run `pixi run grid_run_local`. (On chpc run `CONDA_OVERRIDE_CUDA=12.0 pixi run grid_run_pbs`). This trains over default ratios $[20,1]$ for the `"small"` experiment by default. 
     - Edit the `override_strings.py` in the `/small` subfolder to add any number of ratios in the downsample ratio list. 
     - To train `"large"` alone or with `"small"` a pre-existing variable and `if else` block makes this trivial in the `grid_run_local` module.
+    
 (7) With project root as working directory: Inspect results of each run stored in `"./outputs/cls_imb_s"` and `"./outputs/cls_imb_l"` for small and large respectively in a nested structure. 
+
 (8) Run `pixi run summarise_metrics` to generate the default aggregate metrics over $n$ runs. Metrics are outputted in a flat list one folder above the $n$ run subfolders. 
     - This step is highly efficient and uses pandas grouping. Expect well under a minute for "small" and "large" separately. 
+    
 (9) Run `viz_report_metrics` to generate png plot images in `outputs\cls_imb_{s | l}\report` for all ratios. This will yield outputs as shown prior. 
     - This step is slow when it generates the grids. Allow 3-5min per grid as stated in terminal output. 
+    
 (10) (Optional) Run `post_proc_convert` to use a helper function that cleans up all aggregate metrics and leaves the core run metrics untouched.  
+
 
 ## Core Open Source Frameworks 
 
