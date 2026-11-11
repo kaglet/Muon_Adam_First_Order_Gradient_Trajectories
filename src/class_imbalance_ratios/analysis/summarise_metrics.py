@@ -180,7 +180,7 @@ def summarize_runs_metric(summary_modes: list[str], summary_mode_extras: dict[Li
             More is not done due to brittle nature of decided structure. 
             """
             if extra == "subgroup" and val is not None: 
-                def intercept_acc_grps():
+                def intercept_acc_grps(val: Any) -> Any:
                     counts_df = pd.read_parquet(metrics_path.parent / "train_actual_class_counts.parquet").T
                     labelled_df = pd.read_parquet(metrics_path.parent / "train_desired_class_counts.parquet").T
                     counts_df.index = labelled_df.index
@@ -194,11 +194,10 @@ def summarize_runs_metric(summary_modes: list[str], summary_mode_extras: dict[Li
                     max_list = [lbl for lbl, count in max_series.to_dict().items()]
                     val["given_groups"]["minority"] = min_list 
                     val["given_groups"]["majority"] = max_list
-                    # Alter prefix to reflect extended title
-                    # prefix += f"-Majority-count-{int(max)}---Minority-count-{int(min)}"
+                    return val 
                 
                 if "Train-Accuracy" in prefix or "Validation-Accuracy" in prefix:
-                    intercept_acc_grps()
+                    val = intercept_acc_grps(val)
                 else:
                     raise NotImplementedError("Interceptions of subgroups beyond Accuracy is not implemented yet, aborting")
                 

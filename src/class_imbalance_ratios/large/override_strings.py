@@ -7,7 +7,7 @@ __all__ = ["adam_overrides", "muon_overrides", "autofill_exceptions", "downsampl
 
 cfg_key_downsampler = f"++{group_names.counts_prepper}.downsampler_ratio"
 downsampler_ratio = "++downsampler_ratio"
-downsampler_ratio_values = [20, 1]
+downsampler_ratio_values = [1]
 autofill_exceptions = [downsampler_ratio]
 run_idx = "++run_idx"
 seed = "++seed"
@@ -56,7 +56,7 @@ adam_overrides = {
     f"++{group_names.trainer}.limit_val_batches": NO_LIMIT_VAL_BATCHES,
     f"++{group_names.trainer}.max_epochs": 50,
 
-    f"++{group_names.datamodule}.num_workers": 2,
+    f"++{group_names.datamodule}.num_workers": 4,
     f"++{group_names.datamodule}.persistent_workers": True, 
 }
 
@@ -90,7 +90,7 @@ muon_overrides = {
     f"++{group_names.trainer}.limit_val_batches": NO_LIMIT_VAL_BATCHES,
     f"++{group_names.trainer}.max_epochs": 50,
 
-    f"++{group_names.datamodule}.num_workers": 2,
+    f"++{group_names.datamodule}.num_workers": 4,
     f"++{group_names.datamodule}.persistent_workers": True, 
 }
 

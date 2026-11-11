@@ -99,7 +99,7 @@ def convert_all_pt_metrics_to_parquet(outputs_dir: Path):
         data_df.to_parquet(save_path)   # by default pandas does not append .parquet      
 
 if __name__ == "__main__":
-    convert_all_pt_metrics_to_parquet(outputs_dir=cls_imb_s_outputs_dir)
-    convert_all_pt_metrics_to_parquet(outputs_dir=cls_imb_l_outputs_dir)
+    # convert_all_pt_metrics_to_parquet(outputs_dir=cls_imb_s_outputs_dir)
+    # convert_all_pt_metrics_to_parquet(outputs_dir=cls_imb_l_outputs_dir)
 
-    # delete_all_pt_extension(outputs_dir=outputs_dir)
+    delete_all_parquet_extras(outputs_dir=cls_imb_s_outputs_dir)

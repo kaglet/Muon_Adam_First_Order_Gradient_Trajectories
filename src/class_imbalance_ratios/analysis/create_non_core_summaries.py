@@ -39,39 +39,39 @@ def summarize_all(dir: Path):
     SUMMARY_MODES: list[str] = ["mean"] + quantiles
     subset_summary_modes = SUMMARY_MODES
     
-    print("=========== STORING SUMMARY GRADIENT CORRELATION METRICS ===========")
-    relative_paths_info = [
-        dict(
-            paths= f"run*/train_{corr_store_names["normed"]}.parquet", 
-            prefix="Normalised-GC", 
-            summary_mode_extras={
-                "none": True,
-                "cols": True,
-                "both": True,
-                "epochs": True,
-                "subgroup": None
-            }
-        ),
-        dict(
-            paths = f"run*/train_{corr_store_names["raw"]}.parquet", 
-            prefix="Unnormalised-GC", # For prefix which has GC majority, minority are sourced with path - groups_router (can specify in subrouter for now will hard code)
-            summary_mode_extras={
-                "none": True,
-                "cols": True,
-                "both": True,
-                "epochs": True,
-                "subgroup": None
-            }
-        )
-    ]
+    # print("=========== STORING SUMMARY GRADIENT CORRELATION METRICS ===========")
+    # relative_paths_info = [
+    #     dict(
+    #         paths= f"run*/train_{corr_store_names["normed"]}.parquet", 
+    #         prefix="Normalised-GC", 
+    #         summary_mode_extras={
+    #             "none": True,
+    #             "cols": True,
+    #             "both": True,
+    #             "epochs": True,
+    #             "subgroup": None
+    #         }
+    #     ),
+    #     dict(
+    #         paths = f"run*/train_{corr_store_names["raw"]}.parquet", 
+    #         prefix="Unnormalised-GC", # For prefix which has GC majority, minority are sourced with path - groups_router (can specify in subrouter for now will hard code)
+    #         summary_mode_extras={
+    #             "none": True,
+    #             "cols": True,
+    #             "both": True,
+    #             "epochs": True,
+    #             "subgroup": None
+    #         }
+    #     )
+    # ]
 
-    agg_save_metrics(
-        outputs_dir=dir, 
-        version_dir="multijob/R*", 
-        limit=None,
-        summary_modes=subset_summary_modes,
-        run_paths_info=relative_paths_info
-    )
+    # agg_save_metrics(
+    #     outputs_dir=dir, 
+    #     version_dir="multijob/R*", 
+    #     limit=None,
+    #     summary_modes=subset_summary_modes,
+    #     run_paths_info=relative_paths_info
+    # )
 
     print("=========== STORING SUMMARY ACCURACY METRICS ===========") 
     relative_paths_info = [
@@ -122,39 +122,39 @@ def summarize_all(dir: Path):
         
     )
 
-    print("=========== STORING SUMMARY LOSS METRICS ===========")
-    relative_paths_info = [
-        dict(
-            paths= f"run*/train_loss.parquet", 
-            prefix="Train-Loss",         
-            summary_mode_extras={
-                "none": True,
-                "cols": False,
-                "both": False,
-                "epochs": True,
-                "subgroup": None
-            }
-        ),     
-        dict(
-            paths = f"run*/val_loss.parquet", 
-            prefix="Validation-Loss",         
-            summary_mode_extras={
-                "none": True,
-                "cols": False,
-                "both": False,
-                "epochs": True,
-                "subgroup": None
-            }
-        ) # TODO: When visualizing you can superimpose similar aggregates to one plot
-    ]
+    # print("=========== STORING SUMMARY LOSS METRICS ===========")
+    # relative_paths_info = [
+    #     dict(
+    #         paths= f"run*/train_loss.parquet", 
+    #         prefix="Train-Loss",         
+    #         summary_mode_extras={
+    #             "none": True,
+    #             "cols": False,
+    #             "both": False,
+    #             "epochs": True,
+    #             "subgroup": None
+    #         }
+    #     ),     
+    #     dict(
+    #         paths = f"run*/val_loss.parquet", 
+    #         prefix="Validation-Loss",         
+    #         summary_mode_extras={
+    #             "none": True,
+    #             "cols": False,
+    #             "both": False,
+    #             "epochs": True,
+    #             "subgroup": None
+    #         }
+    #     ) # TODO: When visualizing you can superimpose similar aggregates to one plot
+    # ]
 
-    agg_save_metrics(
-        outputs_dir=dir, 
-        version_dir="multijob/R*", 
-        limit=None,
-        summary_modes=subset_summary_modes,
-        run_paths_info=relative_paths_info
-    )
+    # agg_save_metrics(
+    #     outputs_dir=dir, 
+    #     version_dir="multijob/R*", 
+    #     limit=None,
+    #     summary_modes=subset_summary_modes,
+    #     run_paths_info=relative_paths_info
+    # )
 
 if __name__ == "__main__":
     subtype = "small"

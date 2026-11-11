@@ -223,37 +223,37 @@ def viz_dot_prod(dir_path: Path, mode: str) -> None:
     viz_plot_managers(plot_managers, outputs_dir=dir_path)
 
 def viz_accuracy(dir_path: Path, summary_mode: str) -> None:
-    print(f"=========== VIZ {summary_mode.upper()} SUMMARY ACCURACY METRICS FOR REPORT ===========") 
-    # Col reduction per epoch
-    relative_paths_info = [
-        dict(
-            relative_path= f"runs_extra-both_{summary_mode}_Train-Accuracy.parquet", 
-        ),
-        dict(
-            relative_path = f"runs_extra-both_{summary_mode}_Validation-Accuracy.parquet", 
-        ) 
-    ]
+    # print(f"=========== VIZ {summary_mode.upper()} SUMMARY ACCURACY METRICS FOR REPORT ===========") 
+    # # Col reduction per epoch
+    # relative_paths_info = [
+    #     dict(
+    #         relative_path= f"runs_extra-both_{summary_mode}_Train-Accuracy.parquet", 
+    #     ),
+    #     dict(
+    #         relative_path = f"runs_extra-both_{summary_mode}_Validation-Accuracy.parquet", 
+    #     ) 
+    # ]
 
-    # We run over optimisers first for train, then for val
-    NUM_PROPS_IN_CYCLE = 4
-    plot_cycler_settings = dict(color=['#D95F02', '#1F78B4', '#D95F02', '#1F78B4'], linestyle=['-', '-', '--', '--'], marker=['.'] * NUM_PROPS_IN_CYCLE, markersize=[2.5] * NUM_PROPS_IN_CYCLE, linewidth=[1.25] * NUM_PROPS_IN_CYCLE)
-    curr_fig_ax_n_store = None 
-    immutable_fig_ax_store = None 
-    for i, metric_file_pattern in enumerate(relative_paths_info):
-        plot_managers, curr_fig_ax_n_store = manage_lone_metrics(
-            fig_ax_n_store=immutable_fig_ax_store,
-            plot_cycler_settings=plot_cycler_settings,
-            mode=summary_mode,
-            outputs_dir=dir_path, 
-            version_dir_pattern="multijob/R*", 
-            metric_path_info=metric_file_pattern,
-            final_fig_name="Muon and Adam Train and Validation Accuracy"
-        )
+    # # We run over optimisers first for train, then for val
+    # NUM_PROPS_IN_CYCLE = 4
+    # plot_cycler_settings = dict(color=['#D95F02', '#1F78B4', '#D95F02', '#1F78B4'], linestyle=['-', '-', '--', '--'], marker=['.'] * NUM_PROPS_IN_CYCLE, markersize=[2.5] * NUM_PROPS_IN_CYCLE, linewidth=[1.25] * NUM_PROPS_IN_CYCLE)
+    # curr_fig_ax_n_store = None 
+    # immutable_fig_ax_store = None 
+    # for i, metric_file_pattern in enumerate(relative_paths_info):
+    #     plot_managers, curr_fig_ax_n_store = manage_lone_metrics(
+    #         fig_ax_n_store=immutable_fig_ax_store,
+    #         plot_cycler_settings=plot_cycler_settings,
+    #         mode=summary_mode,
+    #         outputs_dir=dir_path, 
+    #         version_dir_pattern="multijob/R*", 
+    #         metric_path_info=metric_file_pattern,
+    #         final_fig_name="Muon and Adam Train and Validation Accuracy"
+    #     )
 
-        if i == 0:
-            immutable_fig_ax_store = curr_fig_ax_n_store
+    #     if i == 0:
+    #         immutable_fig_ax_store = curr_fig_ax_n_store
 
-        viz_plot_managers(plot_managers, outputs_dir=dir_path)
+    #     viz_plot_managers(plot_managers, outputs_dir=dir_path)
 
     # Subgroups per epoch
     relative_paths_info = [
@@ -329,9 +329,9 @@ def viz_over_dir(dir_path: Path) -> None:
     subset_summary_modes = SUMMARY_MODES[0:] # Generate only a subset of modes especially if new modes are added in @./create_non_core_summaries.py
     for mode in subset_summary_modes: 
         viz_accuracy(dir_path=dir_path, summary_mode=mode)
-        viz_loss(dir_path=dir_path, summary_mode=mode)
-        viz_dot_prod(dir_path=dir_path, mode=mode)
-        viz_mean_correlation(dir_path=dir_path, mode=mode)
+        # viz_loss(dir_path=dir_path, summary_mode=mode)
+        # viz_dot_prod(dir_path=dir_path, mode=mode)
+        # viz_mean_correlation(dir_path=dir_path, mode=mode)
 
 if __name__ == "__main__":
     subtype = "small"
