@@ -186,10 +186,9 @@ def summarize_runs_metric(summary_modes: list[str], summary_mode_extras: dict[Li
                     counts_df.index = labelled_df.index
                     counts_series = counts_df.squeeze(axis=1)
                     assert type(counts_series) is pd.Series, f"Expected counts_series of {type(counts_series)} to be pd.Series."
-                    min = counts_series.min()
                     max = counts_series.max()
-                    min_series = counts_series[counts_series == min] 
-                    max_series = counts_series[counts_series != min]
+                    max_series = counts_series[counts_series == max]
+                    min_series = counts_series[counts_series != max] 
                     min_list = [lbl for lbl, count in min_series.to_dict().items()]
                     max_list = [lbl for lbl, count in max_series.to_dict().items()]
                     val["given_groups"]["minority"] = min_list 
