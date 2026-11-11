@@ -1,4 +1,4 @@
-# Explore Neural Network Layer Gradient Correlations of Adam and Muon
+# Visualising Gradient Correlations of Adam and Muon In Neural Network Layers
 
 ## Description
 
