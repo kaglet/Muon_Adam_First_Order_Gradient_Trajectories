@@ -25,7 +25,7 @@ Ratios := $R={20,10,5,1}$ define downsampling ratios where half classes are maxi
 
 ## Reported Metrics
 
-All reported metrics are over $n$ runs, obtaining a mean, and quantile distributions shaded around it. Options exist to customise metric aggregation incl per epoch and/or per column averaging. Example results of opinionated metrics used to support our own study are shown below:
+All reported metrics are over $n=10$ runs, obtaining a mean, and quantile distributions shaded around it. Options exist to customise metric aggregation incl per epoch and/or per column averaging. Example results of opinionated metrics used to support our own study are shown below:
 
 ### Lone Plots
 
