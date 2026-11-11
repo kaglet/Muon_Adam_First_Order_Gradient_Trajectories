@@ -1,3 +1,5 @@
+# Explore Neural Network Layer Gradient Correlations of Adam and Muon
+
 ## Description
 
 Tracks first order gradient correlations across layers of any neural network optimisation occurs under Muon and Adam. The measure was first introduced in [Exploring Gradient Oscillation in Deep Neural Network Training](https://ieeexplore-ieee-org.uplib.idm.oclc.org/document/10313361). This uncovers stable or oscillatory gradient phases which are then mappable to various loss and accuracy performance benchmarks adapted from [How Muon’s Spectral Design Benefits Generalization: A Study on Imbalanced Data](https://proceedings.iclr.cc/paper_files/paper/2026/file/e6231c5f46598cfd09ff1970524e0436-Paper-Conference.pdf). The scientific paper designs and/or uses common benchmarks to study the inductive learning biases ("rich" or "simple") of Muon and Adam. 
