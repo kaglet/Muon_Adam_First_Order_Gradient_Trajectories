@@ -1,7 +1,4 @@
 from pathlib import Path
-
-from src.class_imbalance_ratios.analysis.needed_paths import cls_imb_s_outputs_dir
-
 def trim_path(path: Path) -> str:
     delim = "/"
     if "/" in str(path):

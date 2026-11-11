@@ -260,29 +260,4 @@ class GridPlotManager(PlotManager):
         return True
 
 if __name__ == "__main__":
-    mpl.rcParams['font.size'] = 150
-
-    metric_df = pd.DataFrame(
-        {
-            "col1": np.random.random(100), 
-            "col2": np.random.random(100),
-            "col3": np.random.random(100),
-            "col4": np.random.random(100),
-            "col5": np.random.random(100),
-            "col6": np.random.random(100),            
-            "col7": np.random.random(100), 
-            "col8": np.random.random(100),
-            "col9": np.random.random(100),
-            "col10": np.random.random(100),
-            "col11": np.random.random(100),
-            "col12": np.random.random(100),            
-            "col13": np.random.random(100), 
-            "col14": np.random.random(100),
-            "col15": np.random.random(100),
-            "col16": np.random.random(100),
-            "col17": np.random.random(100),
-            "col18": np.random.random(100),
-        }
-    )
-    # viz_each_col_unsized(metric_df=metric_df, metadata_df=metric_df)
-    # viz_cols_in_grid(metric_df=metric_df)
+    pass

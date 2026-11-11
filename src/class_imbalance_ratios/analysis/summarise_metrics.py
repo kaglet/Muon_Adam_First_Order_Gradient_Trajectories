@@ -186,8 +186,11 @@ def summarize_runs_metric(summary_modes: list[str], summary_mode_extras: dict[Li
                     counts_df.index = labelled_df.index
                     counts_series = counts_df.squeeze(axis=1)
                     assert type(counts_series) is pd.Series, f"Expected counts_series of {type(counts_series)} to be pd.Series."
+
+                    # By convention we grab majority subgroups first
+                    # For R=1 balanced the minority list will be empty therefore NaNs will result
                     max = counts_series.max()
-                    max_series = counts_series[counts_series == max]
+                    max_series = counts_series[counts_series == max] 
                     min_series = counts_series[counts_series != max] 
                     min_list = [lbl for lbl, count in min_series.to_dict().items()]
                     max_list = [lbl for lbl, count in max_series.to_dict().items()]

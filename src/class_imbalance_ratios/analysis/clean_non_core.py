@@ -29,4 +29,11 @@ if __name__ == "__main__":
     Ensure core metrics are kept in .parquet format while 
     non-core e.g. extras, or non-parquet files are cleaned. 
     """
-    clean_non_core(cls_imb_l_outputs_dir)
+    subtype = "small"
+    if subtype == "small":
+        dirs = [cls_imb_s_outputs_dir]
+    else: 
+        dirs = [cls_imb_l_outputs_dir]
+
+    for dir in dirs:
+        clean_non_core(dir)
