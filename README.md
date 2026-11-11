@@ -56,7 +56,7 @@ To replicate the current available experiments without issue the only hardware r
 
 (1) Install [pixi](https://pixi.prefix.dev/latest/installation/) for env management = 2-5min.
 
-(2) Install [git](https://git-scm.com/install/windows) = 2-5min.
+(2) Install [git](https://git-scm.com/install/windows) = 2-5min. (Required to clone MuonAuxAdam optimiser from [Muon](https://github.com/KellerJordan/Muon))
 
 (3) With GitHub, fork and clone this repo. Or download as zip and unpack. 
 
