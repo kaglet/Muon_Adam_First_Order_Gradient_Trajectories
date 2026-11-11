@@ -16,9 +16,12 @@ muon_cls_imb_l = "python -m src.class_imbalance_ratios.large.run_muon --run=0 --
 adam_cls_imb_s = "python -m src.class_imbalance_ratios.small.run_adam --run=0 --seed=0 --slice=0 --ratio_seed=0"
 muon_cls_imb_s = "python -m src.class_imbalance_ratios.small.run_muon --run=0 --seed=0 --slice=0 --ratio_seed=0"
 
-
 grid_run_pbs = "python -m src.class_imbalance_ratios.cli_grid_runners.grid_run_pbs"
 grid_run_local = "python -m src.class_imbalance_ratios.cli_grid_runners.grid_run_local"
+
+post_proc_convert = "python -m src.class_imbalance_ratios.analysis.post_proc_convert"
+summarise_metrics = "python -m src.class_imbalance_ratios.analysis.summarise_metrics"
+viz_report_metrics = "python -m src.class_imbalance_ratios.analysis.viz_report_metrics"
 
 [dependencies]
 setuptools = "<81"
