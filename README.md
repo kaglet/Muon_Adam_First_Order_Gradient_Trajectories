@@ -10,6 +10,8 @@ During live computation for storage only the past gradient vectors are required 
 
 ## Experiments Possible
 
+These are the finished pipelines. 
+
 ### Class Imbalance Small and Large on Residual Networks
 
 This is a hybrid mix that extends both studies of [Exploring Gradient Oscillation in Deep Neural Network Training](https://ieeexplore-ieee-org.uplib.idm.oclc.org/document/10313361) and [How Muon’s Spectral Design Benefits Generalization: A Study on Imbalanced Data](https://proceedings.iclr.cc/paper_files/paper/2026/file/e6231c5f46598cfd09ff1970524e0436-Paper-Conference.pdf).
@@ -56,7 +58,9 @@ To replicate the current available experiments without issue the only hardware r
     - To train `"large"` alone or with `"small"` a pre-existing variable and `if else` block makes this trivial in the `grid_run_local` module.
 (7) With project root as working directory: Inspect results of each run stored in `"./outputs/cls_imb_s"` and `"./outputs/cls_imb_l"` for small and large respectively in a nested structure. 
 (8) Run `pixi run summarise_metrics` to generate the default aggregate metrics over $n$ runs. Metrics are outputted in a flat list one folder above the $n$ run subfolders. 
+    - This step is highly efficient and uses pandas grouping. Expect well under a minute for "small" and "large" separately. 
 (9) Run `viz_report_metrics` to generate png plot images in `outputs\cls_imb_{s | l}\report` for all ratios. This will yield outputs as shown prior. 
+    - This step is slow when it generates the grids. Allow 3-5min per grid as stated in terminal output. 
 (10) (Optional) Run `post_proc_convert` to use a helper function that cleans up all aggregate metrics and leaves the core run metrics untouched.  
 
 ## Core Open Source Frameworks 
@@ -68,6 +72,18 @@ This list may not yet be exhaustive. Other credits for smaller snippets where ne
 - [Muon](https://github.com/KellerJordan/Muon) by its author [Keller Jordan](https://github.com/KellerJordan): For the dual optimiser class of Muon and Adam as a single PyTorch wrapper `MuonAuxAdam` optimiser.
 - [Dual Optimiser for PL](https://github.com/shivvor2/research-monorepo/blob/master/src/research_lib/training/modules/dual_optimizer.py) by [@shivvor2](https://github.com/shivvor2): Initially used as basis for workarounds needed to make dual optimisers work in PL if certain custom optimisations are desired. The code is left as is for future users who would wish to add other optimisers beyond Muon or Adam `:)`.
 
+## If you'd like to use
+
+If you have are interested in the repo, feel free to contact and ask. This was designed with libraries/tools that encourage replicability and expanded usage patterns for the paradigm of research studies adapted from. The modular and configurable structure means isolated usage and adaptation of components is possible, and can be polished even further. 
+
+However (!) recommendations for future adaptation include: 
+- PyTorch Fabric for more complex experiments and scientific research, carrying over lessons learned in modularity from PLightning. 
+- Hydra-Zen usage is definitely recommended for configurability that scales with complexity. 
+
+Please keep the below in mind...
+
+Admittedly the most confusing pipeline is the `viz_report_metrics` module. It uses pure matplotlib and some tricks to add more efficiency, control and reuse of fig/ax components to obtain a desired yet opinionated reporting result. Small things such as renaming confusing variable names may definitely assist clarity. 
+
 ## Future Plans
 
-*To be updated...*
+*To be updated soon...*
