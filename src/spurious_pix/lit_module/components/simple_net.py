@@ -23,10 +23,12 @@ class SpPixCNN(nn.Module):
                 kernel_size=3,
                 stride=1,
                 padding=0
-            ),
-            nn.MaxPool2d(kernel_size=2, stride=1)
+            )
         )
 
+        self.pool1 = nn.Sequential(
+            nn.MaxPool2d(kernel_size=2, stride=1)
+        )
         # -> [...] 10 -> [fm] 5
         self.conv_layer2 = nn.Sequential(
             nn.Conv2d(in_channels=32, out_channels=64, kernel_size=3, stride=1, padding=0),
@@ -45,10 +47,15 @@ class SpPixCNN(nn.Module):
         :param x: The input tensor.
         :return: A tensor of predictions.
         """
-
+        print("Shape before conv layer 1: ", x.shape)
         x = tf.relu(self.conv_layer1(x)) 
+        print("Shape before pool layer 1: ", x.shape)
+        x = tf.relu(self.pool1(x))
+        print("Shape before conv layer 2: ", x.shape)
         x = tf.relu(self.conv_layer2(x))
+        print("Shape before flatten: ", x.shape)
         x = torch.flatten(x, 1)
+        print("Shape before dense: ", x.shape)
         x = self.dense(x)
 
         return x

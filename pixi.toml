@@ -23,7 +23,6 @@ adam_sp_pix = "python -m src.spurious_pix.base.run_adam --run=0 --seed=0 --slice
 muon_sp_pix = "python -m src.spurious_pix.base.run_muon --run=0 --seed=0 --slice=0 --injection_seed=0"
 
 sp_pix_grid_run_pbs = "python -m src.spurious_pix.cli_grid_runners.grid_run_pbs"
-
 sp_pix_grid_run_local = "python -m src.spurious_pix.cli_grid_runners.grid_run_local"
 
 post_proc_convert = "python -m src.class_imbalance_ratios.analysis.post_proc_convert"
