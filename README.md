@@ -102,4 +102,4 @@ Admittedly the most confusing pipeline is the `viz_report_metrics` module. It us
 
 ## Future Plans
 
-*To be updated soon...*
+Progress is 95% done with the last 5% being entirely optional desire to push to `main` an experiment near complete in runs locally. Scaling instructions will be provided for anyone interested to replicate results of the more compute/time expensive study I base this on. 
