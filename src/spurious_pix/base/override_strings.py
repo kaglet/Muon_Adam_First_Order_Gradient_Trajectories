@@ -74,7 +74,7 @@ adam_overrides = {
         
     f"++{group_names.trainer}.limit_train_batches": NO_LIMIT_TRAIN_BATCHES,
     f"++{group_names.trainer}.limit_val_batches": NO_LIMIT_VAL_BATCHES,
-    f"++{group_names.trainer}.max_epochs": 50,
+    f"++{group_names.trainer}.max_epochs": 10,
 
     f"++{group_names.datamodule}.num_workers": 4,
     f"++{group_names.datamodule}.persistent_workers": True, 
@@ -114,7 +114,7 @@ muon_overrides = {
 
     f"++{group_names.trainer}.limit_train_batches": NO_LIMIT_TRAIN_BATCHES,
     f"++{group_names.trainer}.limit_val_batches": NO_LIMIT_VAL_BATCHES,
-    f"++{group_names.trainer}.max_epochs": 50,
+    f"++{group_names.trainer}.max_epochs": 10,
 
     f"++{group_names.datamodule}.num_workers": 4,
     f"++{group_names.datamodule}.persistent_workers": True, 
