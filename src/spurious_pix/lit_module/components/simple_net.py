@@ -27,16 +27,20 @@ class SpPixCNN(nn.Module):
         )
 
         self.pool1 = nn.Sequential(
-            nn.MaxPool2d(kernel_size=2, stride=1)
+            nn.MaxPool2d(kernel_size=4, stride=2)
         )
         # -> [...] 10 -> [fm] 5
         self.conv_layer2 = nn.Sequential(
             nn.Conv2d(in_channels=32, out_channels=64, kernel_size=3, stride=1, padding=0),
         )
 
+        self.pool2 = nn.Sequential(
+            nn.MaxPool2d(kernel_size=2, stride=2)
+        )
+
         # in_features computed manually assuming stride 1 for convolutions, and 2 for pooling to be a valid computation and to reduce dimensionality, respectively        
         self.dense = nn.Sequential( 
-            nn.Linear(in_features=7774, out_features=128), 
+            nn.Linear(in_features=1600, out_features=128), 
             nn.ReLU(),
             nn.Linear(in_features=128, out_features=num_classes)
         )
@@ -49,12 +53,19 @@ class SpPixCNN(nn.Module):
         """
         print("Shape before conv layer 1: ", x.shape)
         x = tf.relu(self.conv_layer1(x)) 
+
         print("Shape before pool layer 1: ", x.shape)
         x = tf.relu(self.pool1(x))
+
         print("Shape before conv layer 2: ", x.shape)
         x = tf.relu(self.conv_layer2(x))
+
+        print("Shape before pool layer 2: ", x.shape)
+        x = tf.relu(self.pool2(x))
+
         print("Shape before flatten: ", x.shape)
         x = torch.flatten(x, 1)
+
         print("Shape before dense: ", x.shape)
         x = self.dense(x)
 
