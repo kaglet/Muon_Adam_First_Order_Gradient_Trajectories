@@ -4,13 +4,10 @@ Anything configurable or static in a configurable aspect is defined here and ass
 """
 
 import argparse
-from dataclasses import dataclass
 import logging
-import math
-import os
-import multiprocessing
 from pathlib import Path
-from typing import Any, Literal, Type
+
+from torchvision.datasets import MNIST
 
 from omegaconf import OmegaConf
 import torch
@@ -19,28 +16,29 @@ import torch.nn as nn
 import lightning.pytorch as pl
 from lightning.pytorch.callbacks import ModelCheckpoint, Callback
 from hydra_zen import instantiate, to_yaml, just, launch, make_custom_builds_fn, make_config, make_custom_builds_fn, multirun, zen, store
-from muon import MuonWithAuxAdam, SingleDeviceMuonWithAuxAdam
-from torch.optim.lr_scheduler import CosineAnnealingWarmRestarts, ConstantLR
+from muon import SingleDeviceMuonWithAuxAdam
+from torch.optim.lr_scheduler import ConstantLR
 from hydra.conf import HydraConf, JobConf, SweepDir, RunDir
 
 from src.base.group_name_store import group_names
 from src.base.lit_module.components.callbacks.custom_callbacks import DebugCallback, StoreAllGCH, TimerCallback
-from src.class_imbalance_ratios.datamodule.cls_imb_datamodule import ClsImbDataModule, ClsImbSmallDM
 from src.base.lit_module.components.grad_accum.custom_grad_accum import GradAccumSchedule
-from src.class_imbalance_ratios.lit_module.components.custom_resnet import create_resnet_model
-from src.base.lit_module.components.per_optim_params.resnet_params.get_params import get_nondist_Muon_Adam_params
+from src.base.lit_module.components.per_optim_params.cnn_params.get_params import form_single_MuAuxAd_params
 from src.base.lit_module.general_lit_module import DualOptLitModule
-from src.class_imbalance_ratios.conf_assembly_helpers.artificial_overrides_padder import ArtificialOverridesPadder
-from src.class_imbalance_ratios.datamodule.components.ratio_prepper import CountsPrepperFromRatio
-from src.class_imbalance_ratios.conf_assembly_helpers.group_names import shared_config_names
-from src.class_imbalance_ratios.small.override_strings import adam_overrides, muon_overrides, autofill_exceptions
+
+# Borrow simple functionality with R=1 - For future research in integration possibilities
+from src.class_imbalance_ratios.datamodule.components.ratio_prepper import CountsPrepperFromRatio 
+
+from src.spurious_pix.conf_assembly_helpers.artificial_overrides_padder import ArtificialOverridesPadder
+from src.spurious_pix.conf_assembly_helpers.group_names import shared_config_names
+from src.spurious_pix.base.override_strings import adam_overrides, muon_overrides, autofill_exceptions
 from src.spurious_pix.datamodule.components.pixel_injection_map import PixelInjectionMap
+from src.spurious_pix.datamodule.sp_pix_datamodule import SpPixDataModule
 from src.spurious_pix.lit_module.components.simple_net import SpPixCNN
+
 from src.train_and_val import train_and_val
 from lightning.pytorch.loggers import TensorBoardLogger, CSVLogger
-from torchvision.models import resnet18, resnet50, ResNet18_Weights, ResNet50_Weights
 from hydra_zen.third_party.pydantic import validates_with_pydantic
-# from pl_bolts.transforms.dataset_normalizations import cifar10_normalization, imagenet_normalization
 
 builds = make_custom_builds_fn(populate_full_signature=True) 
 pbuilds = make_custom_builds_fn(
@@ -51,7 +49,7 @@ pbuilds = make_custom_builds_fn(
 # ---- LIGHTNING MODULE CONFIGS BEGIN ---- #
 # Define base params cfg
 mu_aux_adam_params_cfg = pbuilds(
-    get_nondist_Muon_Adam_params,
+    form_single_MuAuxAd_params,
 )
 
 # Define base vision model cfg
@@ -152,13 +150,13 @@ DOWNSAMPLER_RATIO = 1
 pixel_map_cfg = builds(PixelInjectionMap, labels=labels, width_only=IMG_WIDTH, injection_seed="${injection_seed}")
 counts_prepper_cfg = builds(CountsPrepperFromRatio, ratio_seed="${ratio_seed}", downsampler_ratio=DOWNSAMPLER_RATIO, train_map=train_map, val_map=val_map, test_map=test_map)
 
-runtime_experim_dir = "${my_root_dir}/outputs/${hydra.job.name}/${hydra.job.config_name}/multijob/R_${counts_prepper.downsampler_ratio}"
+runtime_experim_dir = "${my_root_dir}/outputs/${hydra.job.name}/${hydra.job.config_name}/multijob/I_${intensity}"
 runtime_run_subdir = "${hydra:runtime.output_dir}/run_${run_idx}/" # This path is relative to cwd (current working dir) set by Hydra during program run, could use an interpolated function
 
 data_dir = "${my_root_dir}/data/"
 # print("data_dir set to: ", data_dir)
-cls_imb_datamdl_s_cfg = builds(
-    ClsImbSmallDM, 
+sp_pix_datamdl_s_cfg = builds(
+    SpPixDataModule, 
     persistent_workers=True,
     data_dir = data_dir,
     train_transforms = transforms_cfg,
@@ -166,9 +164,12 @@ cls_imb_datamdl_s_cfg = builds(
     test_transforms = transforms_cfg,
     batch_size = 512, # From batch size set grad_accum to get new effective batch size
     num_workers = 3,
+    intensity="${intensity}",
     metadata_dir = runtime_run_subdir,
     labels=CLASS_LABELS,
     counts_prepper=counts_prepper_cfg,
+    injection_map=pixel_map_cfg,
+    dataset=MNIST
 )
 
 lit_module_store = store(group=group_names.lightning_module)
@@ -178,7 +179,7 @@ trainer_store = store(group=group_names.trainer)
 trainer_store(trainer_cfg, name=shared_config_names.experiment)
 
 datamodule_store = store(group=group_names.datamodule)
-datamodule_store(cls_imb_datamdl_s_cfg, name=shared_config_names.experiment)
+datamodule_store(sp_pix_datamdl_s_cfg, name=shared_config_names.experiment)
 
 model_store = store(group=group_names.models)
 model_store(model_cfg, name=shared_config_names.experiment)
@@ -254,78 +255,4 @@ def pyaml(x):
     # for pretty printing configs
     print(to_yaml(x))
 
-# pyaml(store["hydra", "config"])
 
-if __name__ == "__main__":
-    """ 
-    Via CLI. 
-    Fix and pair run/seed (same value for ease) 
-    Then slice through the current experiment matches. 
-    Here there are 4 experiment ratios to test. 
-    """
-    log_file = Path(__file__).parent / "logs_run_with_cfg.log"
-    logging.basicConfig(filename=log_file, level=logging.DEBUG)
-
-    parser = argparse.ArgumentParser(
-        description="Script that adds 3 numbers from CMD"
-    )
-    parser.add_argument("--run", required=False, nargs="?", type=int, help="Enter `run`", default=0)
-    parser.add_argument("--seed", required=False, nargs="?", type=int, help="Enter `seed`", default=0)
-    parser.add_argument("--slice", required=False, nargs="?", type=int, help="Enter `slice`", default=0)
-    parser.add_argument("--ratio_seed", required=False, nargs="?", type=int, help="Enter `run_seed`", default=0)
-
-    args = parser.parse_args()
-
-    injected_run = args.run
-    injected_seed = args.seed
-    injected_slice = args.slice
-    injected_ratio_seed = args.ratio_seed
-
-    muon_overrides_map = ArtificialOverridesPadder(muon_overrides, autofill_exceptions, 4).overrides_map_as_store
-    muon_overrides_map.overwrite(
-        "++run_idx", 
-        [f"{injected_run}" for _ in list(range(4))]
-    )
-    muon_overrides_map.overwrite(
-        "++seed",
-        [f"{injected_seed}" for _ in list(range(4))]
-    )
-    muon_overrides_map.overwrite(
-        "++ratio_seed",
-        [f"{injected_ratio_seed}" for _ in list(range(4))]
-    )
-    curr_vals = muon_overrides_map.get_map_slice(injected_slice)
-
-    job = launch(
-        ExperimentConfig,
-        task_function,
-        config_name="muon_class_imbalance_ratios",
-        job_name="cls_imb_s_tests",
-        version_base="1.3",
-        overrides=curr_vals
-    )
-
-    adam_overrides_map = ArtificialOverridesPadder(adam_overrides, autofill_exceptions, 4).overrides_map_as_store
-
-    adam_overrides_map.overwrite(
-        "run_idx", 
-        [f"{injected_run}" for _ in list(range(4))]
-    )
-    adam_overrides_map.overwrite(
-        "seed",
-        [f"{injected_seed}" for _ in list(range(4))]
-    )
-    adam_overrides_map.overwrite(
-        "++ratio_seed",
-        [f"{injected_ratio_seed}" for _ in list(range(4))]
-    )
-    curr_vals = adam_overrides_map.get_map_slice(injected_slice)
-
-    job = launch(
-        ExperimentConfig,
-        task_function,
-        config_name="adam_class_imbalance_ratios",
-        job_name="cls_imb_s_tests",
-        version_base="1.3",
-        overrides=curr_vals
-    )

@@ -1,0 +1,3 @@
+## Purpose (Why the redundancy)
+
+This is made as configuration construction is slightly different for large vs small class imbalance experiments. The original design was such that separation of concerns and no mixup between alternate parts was not performed even though hydra zen could handle these differences, it was easy to reconstruct each configuration file. As a result, any similar files closely tied to config were duplicated.

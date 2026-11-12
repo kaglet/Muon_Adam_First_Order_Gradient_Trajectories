@@ -5,12 +5,20 @@ from src.class_imbalance_ratios.conf_assembly_helpers.group_names import shared_
 
 __all__ = ["adam_overrides", "muon_overrides", "autofill_exceptions", "downsampler_ratio_values"]
 
-cfg_key_downsampler = f"++{group_names.counts_prepper}.downsampler_ratio"
+cfg_key_downsampler = f"++{group_names.counts_prepper}.downsampler_ratio" # Old method of setting, was cumbersome and easy to forget override format, but may still work
+
 downsampler_ratio = "++downsampler_ratio"
 downsampler_ratio_values = [1]
-autofill_exceptions = [downsampler_ratio]
+
+ratio_seed = "++ratio_seed"
+ratio_seed_value = 0
+
+autofill_exceptions = [downsampler_ratio] # Exceptions for list values for operations done by Artificial Padder
 run_idx = "++run_idx"
+run_idx_value = 0
 seed = "++seed"
+seed_value = 0
+
 relative_root_raw = str(Path(__file__).parent.parent.parent.parent)
 chpc_root_raw = "/mnt/lustre/users/kmotlhabane/Oscillatory_Gradient_Correlations_Adam_and_Muon"
 my_root_dir = "++my_root_dir"
@@ -27,9 +35,12 @@ NO_LIMIT_TRAIN_BATCHES = "null" #Omega Conf recognised keyword, like False/True,
 NO_LIMIT_VAL_BATCHES = "null"
 
 adam_overrides = {
-    f"{run_idx}": "0",
-    f"{seed}": "0",
+    f"{run_idx}": run_idx_value,
+    f"{seed}": seed_value,
+
     f"{downsampler_ratio}": downsampler_ratio_values,
+    f"{ratio_seed}": ratio_seed_value,
+
     f"{my_root_dir}": relative_root_raw,
 
     f"{group_names.models}": shared_config_names.experiment, 
@@ -61,9 +72,12 @@ adam_overrides = {
 }
 
 muon_overrides = {
-    f"{run_idx}": "0",
-    f"{seed}": "0",
+    f"{run_idx}": run_idx_value,
+    f"{seed}": seed_value,
+
     f"{downsampler_ratio}": downsampler_ratio_values,
+    f"{ratio_seed}": ratio_seed_value,
+    
     f"{my_root_dir}": relative_root_raw,
 
     f"{group_names.models}": shared_config_names.experiment, 

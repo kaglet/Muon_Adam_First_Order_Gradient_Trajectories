@@ -1,0 +1,1 @@
+pixi run adam_sp_pix --run={{run}} --seed={{seed}} --slice={{slice}} --injection_seed={{injection_seed}}

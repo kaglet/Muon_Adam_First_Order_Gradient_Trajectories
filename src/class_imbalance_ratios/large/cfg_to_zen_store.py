@@ -28,7 +28,7 @@ from src.base.lit_module.components.callbacks.custom_callbacks import DebugCallb
 from src.class_imbalance_ratios.datamodule.cls_imb_datamodule import ClsImbDataModule, ClsImbLargeDM
 from src.base.lit_module.components.grad_accum.custom_grad_accum import GradAccumSchedule
 from src.class_imbalance_ratios.lit_module.components.custom_resnet import create_resnet_model
-from src.base.lit_module.components.per_optim_params.resnet_params.get_params import get_nondist_Muon_Adam_params
+from src.base.lit_module.components.per_optim_params.resnet_params.get_params import form_single_MuAuxAd_params
 from src.base.lit_module.general_lit_module import DualOptLitModule
 from src.class_imbalance_ratios.lit_module.cls_imb_lit_module import ClsImbLargeLitModule
 from src.class_imbalance_ratios.conf_assembly_helpers.artificial_overrides_padder import ArtificialOverridesPadder
@@ -50,7 +50,7 @@ pbuilds = make_custom_builds_fn(
 # ---- LIGHTNING MODULE CONFIGS BEGIN ---- #
 # Define base params cfg
 mu_aux_adam_params_cfg = pbuilds(
-    get_nondist_Muon_Adam_params,
+    form_single_MuAuxAd_params,
 )
 
 # Define base vision model cfg
@@ -251,7 +251,7 @@ store(
         output_subdir="run_${run_idx}/hydra",  # TODO: Ensure run_idx is interpolated right with new override structure
     ),
     group="hydra",
-    name="config"
+    name="config" 
 )  # store `hydra.job.chdir=True`
 
 store.add_to_hydra_store(overwrite_ok=True)

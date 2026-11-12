@@ -183,10 +183,6 @@ class ClsImbDataModule(CIFARDataModule):
     def class_labels(self) -> list[str]:
         return self._class_labels
 
-class ClsImbSmallDM(ClsImbDataModule):
-    def __init__(self, persistent_workers: bool, metadata_dir: str, labels: list[str], train_transforms: transforms.Compose, val_transforms: transforms.Compose, test_transforms: transforms.Compose, counts_prepper: CountsPrepperFromRatio, dataset: Type[CIFAR10] | Type[CIFAR100] = CIFAR10, data_dir: str = "./data", batch_size: int = 64, num_workers: int = 4):
-        super().__init__(persistent_workers, metadata_dir, labels, train_transforms, val_transforms, test_transforms, counts_prepper, dataset, data_dir, batch_size, num_workers)
-
 class ClsImbLargeDM(ClsImbDataModule):
     def __init__(self, persistent_workers: bool, metadata_dir: str, labels: list[str], train_transforms: transforms.Compose, val_transforms: transforms.Compose, test_transforms: transforms.Compose, counts_prepper: CountsPrepperFromRatio, dataset: Type[CIFAR10] | Type[CIFAR100] = CIFAR100, data_dir: str = "./data", batch_size: int = 64, num_workers: int = 4):
         super().__init__(persistent_workers, metadata_dir, labels, train_transforms, val_transforms, test_transforms, counts_prepper, dataset, data_dir, batch_size, num_workers)

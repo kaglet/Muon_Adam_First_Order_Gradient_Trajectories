@@ -16,8 +16,15 @@ muon_cls_imb_l = "python -m src.class_imbalance_ratios.large.run_muon --run=0 --
 adam_cls_imb_s = "python -m src.class_imbalance_ratios.small.run_adam --run=0 --seed=0 --slice=0 --ratio_seed=0"
 muon_cls_imb_s = "python -m src.class_imbalance_ratios.small.run_muon --run=0 --seed=0 --slice=0 --ratio_seed=0"
 
-grid_run_pbs = "python -m src.class_imbalance_ratios.cli_grid_runners.grid_run_pbs"
-grid_run_local = "python -m src.class_imbalance_ratios.cli_grid_runners.grid_run_local"
+cls_imb_grid_run_pbs = "python -m src.class_imbalance_ratios.cli_grid_runners.grid_run_pbs"
+cls_imb_grid_run_local = "python -m src.class_imbalance_ratios.cli_grid_runners.grid_run_local"
+
+adam_sp_pix = "python -m src.spurious_pix.base.run_adam --run=0 --seed=0 --slice=0 --injection_seed=0"
+muon_sp_pix = "python -m src.spurious_pix.base.run_muon --run=0 --seed=0 --slice=0 --injection_seed=0"
+
+sp_pix_grid_run_pbs = "python -m src.spurious_pix.cli_grid_runners.grid_run_pbs"
+
+sp_pix_grid_run_local = "python -m src.spurious_pix.cli_grid_runners.grid_run_local"
 
 post_proc_convert = "python -m src.class_imbalance_ratios.analysis.post_proc_convert"
 summarise_metrics = "python -m src.class_imbalance_ratios.analysis.summarise_metrics"
