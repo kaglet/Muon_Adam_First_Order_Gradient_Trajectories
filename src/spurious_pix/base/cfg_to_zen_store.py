@@ -59,7 +59,7 @@ model_cfg = builds(SpPixCNN)
 mu_aux_adam_pcfg = [pbuilds(SingleDeviceMuonWithAuxAdam)]
 
 # Gradient accum schedules 
-grad_accum_schedule_cfg = builds(GradAccumSchedule, {0: 1})
+grad_accum_schedule_cfg = builds(GradAccumSchedule, {0: 4})
 
 # LR Scheduler
 adam_lr_sch_pcfg = pbuilds(ConstantLR, factor=1)

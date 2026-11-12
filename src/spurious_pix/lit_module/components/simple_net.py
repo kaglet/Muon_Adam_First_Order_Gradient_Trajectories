@@ -51,22 +51,22 @@ class SpPixCNN(nn.Module):
         :param x: The input tensor.
         :return: A tensor of predictions.
         """
-        print("Shape before conv layer 1: ", x.shape)
+        # print("Shape before conv layer 1: ", x.shape)
         x = tf.relu(self.conv_layer1(x)) 
 
-        print("Shape before pool layer 1: ", x.shape)
+        # print("Shape before pool layer 1: ", x.shape)
         x = tf.relu(self.pool1(x))
 
-        print("Shape before conv layer 2: ", x.shape)
+        # print("Shape before conv layer 2: ", x.shape)
         x = tf.relu(self.conv_layer2(x))
 
-        print("Shape before pool layer 2: ", x.shape)
+        # print("Shape before pool layer 2: ", x.shape)
         x = tf.relu(self.pool2(x))
 
-        print("Shape before flatten: ", x.shape)
+        # print("Shape before flatten: ", x.shape)
         x = torch.flatten(x, 1)
 
-        print("Shape before dense: ", x.shape)
+        # print("Shape before dense: ", x.shape)
         x = self.dense(x)
 
         return x
