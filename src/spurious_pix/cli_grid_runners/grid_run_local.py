@@ -9,7 +9,7 @@ import time
 from typing import Tuple
 
 from src.class_imbalance_ratios.small.override_strings import downsampler_ratio_values as small_ratios
-from src.class_imbalance_ratios.small.override_strings import downsampler_ratio_values as large_ratios
+from src.spurious_pix.base.override_strings import intensity_values
 
 my_log_file = Path(__file__).parent / "logs/edit_run_txt.log"
 os.makedirs(my_log_file.parent, exist_ok=True)
@@ -72,7 +72,7 @@ def run_local_many(optim_names: list[str], root_dir: Path, run_interval: list[in
 
 if __name__ == "__main__":
     dirs = [Path(__file__).parent.parent / "base/"] # Only one subtype = "base" to source optim scripts for
-    slices = list(range(len(large_ratios))) 
+    slices = list(range(len(intensity_values))) 
 
     runs = list(range(0,10)) # TODO: Allow this to be changed from terminal
     optim_names = ["adam", "muon"]
