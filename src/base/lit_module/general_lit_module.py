@@ -25,9 +25,9 @@ import matplotlib.pyplot as plt
 
 from src.base.lit_module.components.metrics.metric_gch import GCH_Metric, RGCH_Metric
 from src.base.lit_module.components.metrics.metrics_standard import MyLoss, MyMultiClassAccuracy
-from src.class_imbalance_ratios.analysis.summarise_metrics import MetricMetadata
+from src.base.analysis.summarise_metrics import MetricMetadata
 
-__all__ = ["DualOptLitModule", "DistOptLitModule", "SingleOptLitModule"]
+__all__ = ["DualOptLitModule"]
 
 class DualOptLitModule(pl.LightningModule):
     def __init__(

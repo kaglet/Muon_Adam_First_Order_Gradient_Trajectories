@@ -1,7 +1,7 @@
 from pathlib import Path
 
 from src.base.group_name_store import group_names
-from src.class_imbalance_ratios.conf_assembly_helpers.group_names import shared_config_names
+from src.base.conf_assembly_helpers.group_names import shared_config_names
 
 __all__ = ["adam_overrides", "muon_overrides", "autofill_exceptions", "downsampler_ratio_values"]
 
@@ -14,7 +14,7 @@ ratio_seed = "++ratio_seed"
 ratio_seed_value = 0
 
 intensity = "++intensity"
-intensity_values = [20, 6, 3, 1]
+intensity_values = [6, 3, 1]
 
 intensity_seed = "++intensity_seed"
 intensity_seed_value = 0

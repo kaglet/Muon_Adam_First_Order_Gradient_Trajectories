@@ -8,7 +8,6 @@ import os
 import time
 from typing import Tuple
 
-from src.class_imbalance_ratios.small.override_strings import downsampler_ratio_values as small_ratios
 from src.spurious_pix.base.override_strings import intensity_values
 
 my_log_file = Path(__file__).parent / "logs/edit_run_txt.log"

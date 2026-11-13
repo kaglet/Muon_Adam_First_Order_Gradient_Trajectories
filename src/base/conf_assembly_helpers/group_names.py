@@ -39,7 +39,7 @@ class SharedConfigIDs:
     More a specific example of implementation see `./run_with_cfg.py`
     """
     adam = "adam"
-    experiment = "cls_imb_cif10" 
+    experiment = "unknown" 
     muon = "muon"
     chpc = "chpc"
     local = "local"

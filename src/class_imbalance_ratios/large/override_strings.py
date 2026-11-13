@@ -1,7 +1,7 @@
 from pathlib import Path
 
 from src.base.group_name_store import group_names
-from src.class_imbalance_ratios.conf_assembly_helpers.group_names import shared_config_names
+from src.base.conf_assembly_helpers.group_names import shared_config_names
 
 __all__ = ["adam_overrides", "muon_overrides", "autofill_exceptions", "downsampler_ratio_values"]
 

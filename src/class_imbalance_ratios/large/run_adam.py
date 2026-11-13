@@ -4,7 +4,7 @@ from pathlib import Path
 
 from hydra_zen import launch, zen
 
-from src.class_imbalance_ratios.conf_assembly_helpers.artificial_overrides_padder import ArtificialOverridesPadder
+from src.base.conf_assembly_helpers.artificial_overrides_padder import ArtificialOverridesPadder
 from src.class_imbalance_ratios.large.override_strings import adam_overrides, autofill_exceptions, muon_overrides
 
 from src.class_imbalance_ratios.large.cfg_to_zen_store import ExperimentConfig
