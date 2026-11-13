@@ -5,7 +5,7 @@ from pathlib import Path
 from hydra_zen import launch, zen
 
 from src.base.conf_assembly_helpers.artificial_overrides_padder import ArtificialOverridesPadder
-from src.spurious_pix.base.override_strings import autofill_exceptions, muon_overrides
+from src.spurious_pix.base.override_strings import autofill_exceptions, intensity_values, muon_overrides
 
 from src.spurious_pix.base.cfg_to_zen_store import ExperimentConfig
 from src.class_imbalance_ratios.logs.log_experiment_details import print_experim_info
@@ -32,7 +32,7 @@ if __name__ == "__main__":
     parser.add_argument("--run", required=False, nargs="?", type=int, help="Enter `run`", default=0)
     parser.add_argument("--seed", required=False, nargs="?", type=int, help="Enter `seed`", default=0)
     parser.add_argument("--slice", required=False, nargs="?", type=int, help="Enter `slice`", default=0)
-    parser.add_argument("--injection_seed", required=False, nargs="?", type=int, help="Enter `run_seed`", default=0)
+    parser.add_argument("--injection_seed", required=False, nargs="?", type=int, help="Enter `injection_seed`", default=0)
 
     args = parser.parse_args()
 
@@ -41,7 +41,8 @@ if __name__ == "__main__":
     injected_slice = args.slice
     injected_injection_seed = args.injection_seed
 
-    muon_overrides_map = ArtificialOverridesPadder(muon_overrides, autofill_exceptions, 4).overrides_map_as_store
+    PADDING = len(intensity_values)
+    muon_overrides_map = ArtificialOverridesPadder(muon_overrides, autofill_exceptions, PADDING).overrides_map_as_store
     muon_overrides_map.overwrite(
         "++run_idx", 
         [f"{injected_run}" for _ in list(range(4))]

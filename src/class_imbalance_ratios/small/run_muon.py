@@ -6,7 +6,7 @@ from hydra_zen import launch, zen
 
 from src.base.conf_assembly_helpers.artificial_overrides_padder import ArtificialOverridesPadder
 from src.class_imbalance_ratios.logs.log_experiment_details import print_experim_info
-from src.class_imbalance_ratios.small.override_strings import autofill_exceptions, muon_overrides
+from src.class_imbalance_ratios.small.override_strings import autofill_exceptions, downsampler_ratio_values, muon_overrides
 
 from src.class_imbalance_ratios.small.cfg_to_zen_store import ExperimentConfig
 from src.train_and_val import train_and_val
@@ -41,7 +41,9 @@ if __name__ == "__main__":
     injected_slice = args.slice
     injected_ratio_seed = args.ratio_seed
 
-    muon_overrides_map = ArtificialOverridesPadder(muon_overrides, autofill_exceptions, 4).overrides_map_as_store
+    PADDING = len(downsampler_ratio_values)
+
+    muon_overrides_map = ArtificialOverridesPadder(muon_overrides, autofill_exceptions, PADDING).overrides_map_as_store
     muon_overrides_map.overwrite(
         "++run_idx", 
         [f"{injected_run}" for _ in list(range(4))]

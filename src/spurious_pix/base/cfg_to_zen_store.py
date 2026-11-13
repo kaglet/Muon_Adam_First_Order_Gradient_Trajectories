@@ -29,9 +29,7 @@ from src.base.lit_module.general_lit_module import DualOptLitModule
 # Borrow simple functionality with R=1 - For future research in integration possibilities
 from src.class_imbalance_ratios.datamodule.components.ratio_prepper import CountsPrepperFromRatio 
 
-from src.spurious_pix.conf_assembly_helpers.artificial_overrides_padder import ArtificialOverridesPadder
-from src.spurious_pix.conf_assembly_helpers.group_names import shared_config_names
-from src.spurious_pix.base.override_strings import adam_overrides, muon_overrides, autofill_exceptions
+from src.base.conf_assembly_helpers.group_names import shared_config_names
 from src.spurious_pix.datamodule.components.pixel_injection_map import PixelInjectionMap
 from src.spurious_pix.datamodule.sp_pix_datamodule import SpPixDataModule
 from src.spurious_pix.lit_module.components.simple_net import SpPixCNN
