@@ -9,25 +9,34 @@ platforms = [
 ]
 
 [tasks]
+# Quick tester e.g. for docker runs
 tests = "python -m src.src_tests --num1=1 --num2=2 --num3=5"
-adam_cls_imb_l = "python -m src.class_imbalance_ratios.large.run_adam --run=0 --seed=0 --slice=0 --ratio_seed=0"
-muon_cls_imb_l = "python -m src.class_imbalance_ratios.large.run_muon --run=0 --seed=0 --slice=0 --ratio_seed=0"
 
-adam_cls_imb_s = "python -m src.class_imbalance_ratios.small.run_adam --run=0 --seed=0 --slice=0 --ratio_seed=0"
-muon_cls_imb_s = "python -m src.class_imbalance_ratios.small.run_muon --run=0 --seed=0 --slice=0 --ratio_seed=0"
+# Naming format: <experim_name>_<subtype_name>{null | _<optimiser_name>}
+# Class Imbalance Experiments (Individual or grid based runs allowing spec over all)
+cls_imb_l_adam = "python -m src.class_imbalance_ratios.large.run_adam --run=0 --seed=0 --slice=0 --ratio_seed=0"
+cls_imb_l_muon = "python -m src.class_imbalance_ratios.large.run_muon --run=0 --seed=0 --slice=0 --ratio_seed=0"
 
-cls_imb_grid_run_pbs = "python -m src.class_imbalance_ratios.cli_grid_runners.grid_run_pbs"
-cls_imb_grid_run_local = "python -m src.class_imbalance_ratios.cli_grid_runners.grid_run_local"
+cls_imb_s_adam = "python -m src.class_imbalance_ratios.small.run_adam --run=0 --seed=0 --slice=0 --ratio_seed=0"
+cls_imb_s_muon = "python -m src.class_imbalance_ratios.small.run_muon --run=0 --seed=0 --slice=0 --ratio_seed=0"
 
-adam_sp_pix = "python -m src.spurious_pix.base.run_adam --run=0 --seed=0 --slice=0 --injection_seed=0"
-muon_sp_pix = "python -m src.spurious_pix.base.run_muon --run=0 --seed=0 --slice=0 --injection_seed=0"
+grid_run_pbs_cls_imb_all = "python -m src.class_imbalance_ratios.cli_grid_runners.grid_run_pbs"
+grid_run_local_cls_imb_all = "python -m src.class_imbalance_ratios.cli_grid_runners.grid_run_local"
 
-sp_pix_grid_run_pbs = "python -m src.spurious_pix.cli_grid_runners.grid_run_pbs"
-sp_pix_grid_run_local = "python -m src.spurious_pix.cli_grid_runners.grid_run_local"
+post_proc_convert_cls_imb_all = "python -m src.class_imbalance_ratios.analysis.post_proc_convert"
+summarise_metrics_cls_imb_all = "python -m src.class_imbalance_ratios.analysis.create_non_core_summaries"
+viz_report_metrics_cls_imb_all = "python -m src.class_imbalance_ratios.analysis.viz_report_metrics"
 
-post_proc_convert = "python -m src.class_imbalance_ratios.analysis.post_proc_convert"
-summarise_metrics = "python -m src.class_imbalance_ratios.analysis.summarise_metrics"
-viz_report_metrics = "python -m src.class_imbalance_ratios.analysis.viz_report_metrics"
+# Spurious Pixel Experiments (Individual or grid based runs allowing spec over all)
+sp_pix_adam = "python -m src.spurious_pix.base.run_adam --run=0 --seed=0 --slice=0 --injection_seed=0"
+sp_pix_muon = "python -m src.spurious_pix.base.run_muon --run=0 --seed=0 --slice=0 --injection_seed=0"
+
+grid_run_pbs_sp_pix = "python -m src.spurious_pix.cli_grid_runners.grid_run_pbs"
+grid_run_local_sp_pix = "python -m src.spurious_pix.cli_grid_runners.grid_run_local"
+
+post_proc_convert_sp_pix = "python -m src.spurious_pix.analysis.post_proc_convert"
+summarise_metrics_sp_pix = "python -m src.spurious_pix.analysis.create_non_core_summaries"
+viz_report_metrics_sp_pix = "python -m src.spurious_pix.analysis.viz_report_metrics"
 
 [dependencies]
 setuptools = "<81"

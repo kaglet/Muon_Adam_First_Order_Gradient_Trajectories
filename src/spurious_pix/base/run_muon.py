@@ -60,7 +60,7 @@ if __name__ == "__main__":
     job = launch(
         ExperimentConfig,
         task_function,
-        config_name="muon_sp_pix",
+        config_name="sp_pix_muon",
         job_name="spurious_pixel",
         version_base="1.3",
         overrides=curr_vals

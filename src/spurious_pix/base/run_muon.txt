@@ -1,1 +1,1 @@
-pixi run muon_sp_pix --run={{run}} --seed={{seed}} --slice={{slice}} --injection_seed={{injection_seed}}
+pixi run sp_pix_muon --run={{run}} --seed={{seed}} --slice={{slice}} --injection_seed={{injection_seed}}

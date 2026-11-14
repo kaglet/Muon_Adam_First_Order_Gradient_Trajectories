@@ -64,7 +64,7 @@ if __name__ == "__main__":
     job = launch(
         ExperimentConfig,
         task_function,
-        config_name="adam_class_imbalance_ratios",
+        config_name="cls_imb_s_adam",
         job_name="cls_imb_s",
         version_base="1.3",
         overrides=curr_vals
