@@ -25,7 +25,7 @@ from hydra.conf import HydraConf, JobConf, SweepDir, RunDir
 
 from src.base.group_name_store import group_names
 from src.base.lit_module.components.callbacks.custom_callbacks import DebugCallback, StoreAllGCH, TimerCallback
-from src.class_imbalance_ratios.datamodule.cls_imb_datamodule import ClsImbDataModule, SpPixDataModule
+from src.class_imbalance_ratios.datamodule.cls_imb_datamodule import ClsImbDataModule
 from src.base.lit_module.components.grad_accum.custom_grad_accum import GradAccumSchedule
 from src.class_imbalance_ratios.lit_module.components.custom_resnet import create_resnet_model
 from src.base.lit_module.components.per_optim_params.resnet_params.get_params import form_single_MuAuxAd_params
@@ -163,7 +163,7 @@ runtime_run_subdir = "${hydra:runtime.output_dir}/run_${run_idx}/" # This path i
 data_dir = "${my_root_dir}/data/"
 # print("data_dir set to: ", data_dir)
 cls_imb_datamdl_s_cfg = builds(
-    SpPixDataModule, 
+    ClsImbDataModule, 
     persistent_workers=True,
     data_dir = data_dir,
     train_transforms = cls_imb_s_transforms,

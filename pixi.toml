@@ -12,7 +12,7 @@ platforms = [
 # Quick tester e.g. for docker runs
 tests = "python -m src.src_tests --num1=1 --num2=2 --num3=5"
 
-# Naming format: <experim_name>_<subtype_name>{null | _<optimiser_name>}
+# Naming format: {null | grid_specifier}<experim_name>_<subtype_name>{null | _<optimiser_name>}
 # Class Imbalance Experiments (Individual or grid based runs allowing spec over all)
 cls_imb_l_adam = "python -m src.class_imbalance_ratios.large.run_adam --run=0 --seed=0 --slice=0 --ratio_seed=0"
 cls_imb_l_muon = "python -m src.class_imbalance_ratios.large.run_muon --run=0 --seed=0 --slice=0 --ratio_seed=0"

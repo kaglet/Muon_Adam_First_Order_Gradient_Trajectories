@@ -16,16 +16,26 @@ These are the finished pipelines.
 
 ### Class Imbalance Small and Large on Residual Networks
 
-This is a hybrid mix that extends both studies of [Exploring Gradient Oscillation in Deep Neural Network Training](https://ieeexplore-ieee-org.uplib.idm.oclc.org/document/10313361) and [How Muon’s Spectral Design Benefits Generalization: A Study on Imbalanced Data](https://proceedings.iclr.cc/paper_files/paper/2026/file/e6231c5f46598cfd09ff1970524e0436-Paper-Conference.pdf).
+This is a hybrid mix that extends both studies of [Exploring Gradient Oscillation in Deep Neural Network Training](https://ieeexplore-ieee-org.uplib.idm.oclc.org/document/10313361) and [How Muon’s Spectral Design Benefits Generalization: A Study on Imbalanced Data](https://proceedings.iclr.cc/paper_files/paper/2026/file/e6231c5f46598cfd09ff1970524e0436-Paper-Conference.pdf). 
 
-Ratios := $R={20,10,5,1}$ define downsampling ratios where half classes are maximised and half are downsampled by the factor of $R$. 
+Ratios := $R={20,10,5,1}$ define downsampling ratios where half classes are maximised and half are downsampled by the factor of $R$. The same hyperparameters where stated are used, and dataset unique norm is custom calculated. Motivations of parity are specified in the `overrides.py` file as to be covered in [Usage](#usage). 
 
 - Class Imbalance "Small" = CIFAR10 + ResNet18 (default random weight init) + 50 epochs 
 - Class Imbalance "Large" = CIFAR100 + ResNet50 (default random weight init) + 50 epochs
 
+### Spurious Pixel on Custom Convolutional Network
+
+This is a hybrid mix that extends the study of [To Use or not to Use Muon: How Simplicity Bias in Optimizers Matters](https://arxiv.org/html/2603.00742v1) and [How Muon’s Spectral Design Benefits Generalization: A Study on Imbalanced Data](https://proceedings.iclr.cc/paper_files/paper/2026/file/e6231c5f46598cfd09ff1970524e0436-Paper-Conference.pdf). 
+
+Spurious pixel intensities $SPI={20,6,3,1}$ define a fixed intensity pixel that repeats in the same location for a digit class, and is therefore as predictive as the 'real' digit feature. The same parameters from `cls_imb_s` of the section [Class Imbalance](#class-imbalance-small-and-large-on-residual-networks) were initially used. As defaults we set the hyperparameters to match those of the paper in question. Motivations of parity are specified in the `overrides.py` file as to be covered in [Usage](#usage).
+
+Our `simple_net` is a custom small CNN similar with significantly reduced flattening dimension prior to the dense layers. Further size shrinking of strides or kernel sizes are performed for the output size maths to work out and to lack overparameterisation for simple MNIST. The original dense layer input layer was of $dim=33856$ against our $dim=1600$.
+
+- Spurious Pixel = MNIST + "Simple" CNN (default random weight init) + 10 epochs 
+
 ## Reported Metrics
 
-All reported metrics are over $n=10$ runs, obtaining a mean, and quantile distributions shaded around it. Options exist to customise metric aggregation incl per epoch and/or per column averaging. Example results of opinionated metrics used to support our own study are shown below:
+All reported metrics are over $n=10$ runs, obtaining a mean, and quantile distributions shaded around it. Options exist to customise metric aggregation incl per epoch and/or per column averaging. Example results of opinionated metrics used to support our own study are shown below for class imbalance $R=20$ and $SPI=20$:
 
 ### Lone Plots
 
@@ -52,7 +62,7 @@ Inspect `pushable_outputs/cls_imb_s/report/mean/R_1/` for images of $R=1$ ratio 
 
 ## Usage 
 
-To replicate the current available experiments without issue the only hardware requirement is use of windows and a single GPU. Alternate instructions are present for runs on a linux cluster such as CHPC (also used):
+To replicate the current available experiments without issue the only hardware requirement is use of windows and a single GPU. Alternate instructions are present for runs on a linux cluster such as CHPC (also used). The following is for the class imbalance experiments. The spurious pixel experiments are a simpler yet similar case. The `./pixi.toml` file contains all tasks with a naming equivalency guide using comments. 
 
 (1) Install [pixi](https://pixi.prefix.dev/latest/installation/) for env management = $2-5$min.
 
@@ -64,20 +74,19 @@ To replicate the current available experiments without issue the only hardware r
 
 (5) Run `pixi install`. (On chpc run `CONDA_OVERRIDE_CUDA=12.0 pixi install`)
 
-(6) Run `pixi run grid_run_local`. (On chpc run `CONDA_OVERRIDE_CUDA=12.0 pixi run grid_run_pbs`). This trains over default ratios $[20,1]$ for the `"small"` experiment by default.  
+(6) Run `pixi run grid_run_local_cls_imb_all`. (On chpc run `CONDA_OVERRIDE_CUDA=12.0 pixi run grid_run_pbs_cls_imb_all`). This trains over default ratios $[20,1]$ for the `"small"` experiment by default.  
     - Edit the `override_strings.py` in the `/small` subfolder to add any number of ratios in the downsample ratio list.  
-    - To train `"large"` alone or with `"small"` a pre-existing variable and `if else` block makes this trivial in the `grid_run_local` module.
+    - To train `"large"` alone or with `"small"` a pre-existing variable and `if else` block makes this trivial in the `grid_run_local_cls_imb_all` module.
 
 (7) With project root as working directory: Inspect results of each run stored in `"./outputs/cls_imb_s"` and `"./outputs/cls_imb_l"` for small and large respectively in a nested structure. 
 
-(8) Run `pixi run summarise_metrics` to generate the default aggregate metrics over $n$ runs. Metrics are outputted in a flat list one folder above the $n$ run subfolders.  
+(8) Run `pixi run summarise_metrics_cls_imb_all` to generate the default aggregate metrics over $n$ runs. Metrics are outputted in a flat list one folder above the $n$ run subfolders.  
     - This step is highly efficient and uses pandas grouping. Expect well under a minute for "small" and "large" separately. 
 
-(9) Run `viz_report_metrics` to generate png plot images in `outputs\cls_imb_{s | l}\report` for all ratios. This will yield outputs as shown prior.  
+(9) Run `viz_report_metrics_cls_imb_all` to generate png plot images in `outputs\cls_imb_{s | l}\report` for all ratios. This will yield outputs as shown prior.  
     - This step is slow when it generates the grids. Allow 3-5min per grid as stated in terminal output. 
 
-(10) (Optional) Run `post_proc_convert` to use a helper function that cleans up all aggregate metrics and leaves the core run metrics untouched.  
-
+(10) (Optional) Run `post_proc_convert_cls_imb_all` to use a helper function that cleans up all aggregate metrics and leaves the core run metrics untouched.  
 
 ## Core Open Source Frameworks 
 

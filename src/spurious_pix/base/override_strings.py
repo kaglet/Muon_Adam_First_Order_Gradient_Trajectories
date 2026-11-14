@@ -62,16 +62,18 @@ adam_overrides = {
     f"{group_names.gradient_accumulator_schedule}": shared_config_names.experiment,
     f"{group_names.schedulers}": shared_config_names.adam,
 
-    f"++{group_names.parameters_set}.lr_muon": 1e-1,
-    f"++{group_names.parameters_set}.lr_adam": 1e-3,
+    f"++{group_names.parameters_set}.lr_muon": 0.008,
+    f"++{group_names.parameters_set}.lr_adam": 3e-4, # The meaning of Adam params and relationship to Muon is hard to parse - This is what we find may be implied 
     f"++{group_names.parameters_set}.use_muon": "False",
-    f"++{group_names.parameters_set}.momentum_muon": 0.9,
+    f"++{group_names.parameters_set}.momentum_muon": 0.95,
     f"++{group_names.parameters_set}.beta_1_adam": 0.9,
     f"++{group_names.parameters_set}.beta_2_adam": 0.999,
     f"++{group_names.parameters_set}.nesterov": "False",
     f"++{group_names.parameters_set}.use_layer_recs": "False",
     f"++{group_names.parameters_set}.eps": 1e-8, # Not given
-        
+    f"++{group_names.parameters_set}.w_decay_muon": 0.1,
+    f"++{group_names.parameters_set}.w_decay_adam": 0,
+
     f"++{group_names.trainer}.limit_train_batches": NO_LIMIT_TRAIN_BATCHES,
     f"++{group_names.trainer}.limit_val_batches": NO_LIMIT_VAL_BATCHES,
     f"++{group_names.trainer}.max_epochs": 10,
@@ -102,15 +104,17 @@ muon_overrides = {
     f"{group_names.gradient_accumulator_schedule}": shared_config_names.experiment,
     f"{group_names.schedulers}": shared_config_names.muon,
 
-    f"++{group_names.parameters_set}.lr_muon": 1e-1, # Use research value
-    f"++{group_names.parameters_set}.lr_adam": 3e-4, # Not given - Use default MuonWithAuxAdam rec
-    f"++{group_names.parameters_set}.use_muon": "True",
-    f"++{group_names.parameters_set}.momentum_muon": 0.9,
+    f"++{group_names.parameters_set}.lr_muon": 0.008,
+    f"++{group_names.parameters_set}.lr_adam": 3e-4, 
+    f"++{group_names.parameters_set}.use_muon": "False",
+    f"++{group_names.parameters_set}.momentum_muon": 0.95,
     f"++{group_names.parameters_set}.beta_1_adam": 0.9,
-    f"++{group_names.parameters_set}.beta_2_adam": 0.95,
+    f"++{group_names.parameters_set}.beta_2_adam": 0.999,
     f"++{group_names.parameters_set}.nesterov": "False",
     f"++{group_names.parameters_set}.use_layer_recs": "False",
-    f"++{group_names.parameters_set}.eps": 1e-8, # Not given - Use default MuonWithAuxAdam
+    f"++{group_names.parameters_set}.eps": 1e-8, # Not given
+    f"++{group_names.parameters_set}.w_decay_muon": 0.1,
+    f"++{group_names.parameters_set}.w_decay_adam": 0,
 
     f"++{group_names.trainer}.limit_train_batches": NO_LIMIT_TRAIN_BATCHES,
     f"++{group_names.trainer}.limit_val_batches": NO_LIMIT_VAL_BATCHES,
