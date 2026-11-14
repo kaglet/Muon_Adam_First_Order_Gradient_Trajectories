@@ -27,11 +27,11 @@ Ratios := $R={20,10,5,1}$ define downsampling ratios where half classes are maxi
 
 This is a hybrid mix that extends the study of [To Use or not to Use Muon: How Simplicity Bias in Optimizers Matters](https://arxiv.org/html/2603.00742v1) and [How Muon’s Spectral Design Benefits Generalization: A Study on Imbalanced Data](https://proceedings.iclr.cc/paper_files/paper/2026/file/e6231c5f46598cfd09ff1970524e0436-Paper-Conference.pdf). 
 
-Spurious pixel intensities $SPI={20,6,3,1}$ define a fixed intensity pixel that repeats in the same location for a digit class, and is therefore as predictive as the 'real' digit feature. The same parameters from `cls_imb_s` of the section [Class Imbalance](#class-imbalance-small-and-large-on-residual-networks) were initially used. As defaults we set the hyperparameters to match those of the paper in question. Motivations of parity are specified in the `overrides.py` file as to be covered in [Usage](#usage).
+Spurious pixel intensities $SPI={20,6,3,1}$ define a fixed intensity pixel that repeats in the same location for a digit class, and is therefore as predictive as the 'real' digit feature. The current iteration has the same parameters from `cls_imb_s` of the section [Class Imbalance](#class-imbalance-small-and-large-on-residual-networks) were initially used. As defaults for other future runs we set the hyperparameters to match those of the paper in question. Motivations of parity are specified in the `overrides.py` file as to be covered in [Usage](#usage).
 
-Our `simple_net` is a custom small CNN similar with significantly reduced flattening dimension prior to the dense layers. Further size shrinking of strides or kernel sizes are performed for the output size maths to work out and to lack overparameterisation for simple MNIST. The original dense layer input layer was of $dim=33856$ against our $dim=1600$.
+Our `simple_net` is a custom small CNN similar with significantly reduced flattening dimension prior to the dense layers. Further size shrinking of strides or kernel sizes are performed for the output size maths to work out and to lack overparameterisation for simple MNIST. As a key example, the original dense layer input layer was of $dim=33856$ against our $dim=1600$.
 
-- Spurious Pixel = MNIST + "Simple" CNN (default random weight init) + 10 epochs 
+- Spurious Pixel = MNIST + "Simple" CNN (default random weight init) + 10 epochs. 
 
 ## Reported Metrics
 
@@ -39,6 +39,7 @@ All reported metrics are over $n=10$ runs, obtaining a mean, and quantile distri
 
 ### Lone Plots
 
+#### Class Imbalance
 ![Output Example](pushable_outputs/cls_imb_s/report/mean/R_20/lone_muon_and_adam_cosine_similarity.png) 
 
 ![Output Example](pushable_outputs/cls_imb_s/report/mean/R_20/lone_muon_and_adam_dot_product.png) 
@@ -49,12 +50,16 @@ All reported metrics are over $n=10$ runs, obtaining a mean, and quantile distri
 
 ![Output Example](pushable_outputs/cls_imb_s/report/mean/R_20/lone_subgroup_muon_and_adam_train_and_validation_accuracy.png)
 
+#### Spurious Pixel
 
 ### Grid Plots
 
+#### Class Imbalance
 [![](pushable_outputs/cls_imb_s/report/mean/R_20/grid_per_layer_muon_and_adam_cosine_similarity.png)](pushable_outputs/cls_imb_s/report/mean/R_20/grid_per_layer_muon_and_adam_cosine_similarity.png) 
 
 [![](pushable_outputs/cls_imb_s/report/mean/R_20/grid_per_layer_muon_and_adam_dot_product.png)](pushable_outputs/cls_imb_s/report/mean/R_20/grid_per_layer_muon_and_adam_dot_product.png) 
+
+#### Spurious Pixel
 
 ### Other Outputs
 
