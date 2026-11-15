@@ -1,8 +1,18 @@
+from typing import Any, Iterator
+
 import torch
-from torch import nn
+from torch import Tensor, nn
 import torch.nn.functional as tf
+from torch.nn.modules.module import Module
 
 __all__ = ["SpPixCNN"]
+
+def init_modules_weights(modules: Iterator[Module]) -> None:
+    for layer in modules:
+        if type(layer.weight) == Tensor:
+            nn.init.normal_(layer.weight, mean=0, std=0.01)
+            if layer.bias is not None and type(layer.bias) == Tensor:
+                nn.init.zeros_(layer.bias)
 
 class SpPixCNN(nn.Module):
     """
@@ -25,18 +35,23 @@ class SpPixCNN(nn.Module):
                 padding=0
             )
         )
+        init_modules_weights(self.conv_layer1.modules())
 
         self.pool1 = nn.Sequential(
             nn.MaxPool2d(kernel_size=4, stride=2)
         )
+        init_modules_weights(self.pool1.modules())
+
         # -> [...] 10 -> [fm] 5
         self.conv_layer2 = nn.Sequential(
             nn.Conv2d(in_channels=32, out_channels=64, kernel_size=3, stride=1, padding=0),
         )
+        init_modules_weights(self.conv_layer2.modules())
 
         self.pool2 = nn.Sequential(
             nn.MaxPool2d(kernel_size=2, stride=2)
         )
+        init_modules_weights(self.pool2.modules())
 
         # in_features computed manually assuming stride 1 for convolutions, and 2 for pooling to be a valid computation and to reduce dimensionality, respectively        
         self.dense = nn.Sequential( 
@@ -44,6 +59,7 @@ class SpPixCNN(nn.Module):
             nn.ReLU(),
             nn.Linear(in_features=128, out_features=num_classes)
         )
+        init_modules_weights(self.dense.modules())
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         """Perform a single forward pass through the network.
