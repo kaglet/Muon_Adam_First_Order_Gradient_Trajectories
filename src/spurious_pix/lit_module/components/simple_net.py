@@ -15,6 +15,8 @@ def init_modules_weights(modules: Iterator[Module]) -> None:
                 nn.init.zeros_(layer.bias)
 
     for layer in modules:
+        if type(layer) == nn.ReLU:
+            continue
         if type(layer) == nn.Sequential:
             for layer in modules:
                 init_layer_weights(layer)
