@@ -47,7 +47,6 @@ class SpPixCNN(nn.Module):
         self.pool1 = nn.Sequential(
             nn.MaxPool2d(kernel_size=4, stride=2)
         )
-        init_modules_weights(self.pool1.modules())
 
         # -> [...] 10 -> [fm] 5
         self.conv_layer2 = nn.Sequential(
@@ -58,7 +57,6 @@ class SpPixCNN(nn.Module):
         self.pool2 = nn.Sequential(
             nn.MaxPool2d(kernel_size=2, stride=2)
         )
-        init_modules_weights(self.pool2.modules())
 
         # in_features computed manually assuming stride 1 for convolutions, and 2 for pooling to be a valid computation and to reduce dimensionality, respectively        
         self.dense = nn.Sequential( 
