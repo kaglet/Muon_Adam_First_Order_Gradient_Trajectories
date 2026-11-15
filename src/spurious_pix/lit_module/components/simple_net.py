@@ -8,11 +8,18 @@ from torch.nn.modules.module import Module
 __all__ = ["SpPixCNN"]
 
 def init_modules_weights(modules: Iterator[Module]) -> None:
-    for layer in modules:
+    def init_layer_weights(layer: Module):
         if type(layer.weight) == Tensor:
             nn.init.normal_(layer.weight, mean=0, std=0.01)
             if layer.bias is not None and type(layer.bias) == Tensor:
                 nn.init.zeros_(layer.bias)
+
+    for layer in modules:
+        if type(layer) == nn.Sequential:
+            for layer in modules:
+                init_layer_weights(layer)
+        else:
+            init_layer_weights(layer)
 
 class SpPixCNN(nn.Module):
     """
