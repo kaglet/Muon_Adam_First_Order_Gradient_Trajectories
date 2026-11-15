@@ -8,10 +8,15 @@ __all__ = ["adam_overrides", "muon_overrides", "autofill_exceptions", "downsampl
 cfg_key_downsampler = f"++{group_names.counts_prepper}.downsampler_ratio" # Old method of setting, was cumbersome and easy to forget override format, but may still work
 
 intensity = "++intensity"
-intensity_values = [20, 6, 3, 1]
+intensity_values = [20, 6, 3, 1] # 20 is not from OG study, just tests extreme case, and copies hparams of SPI 6
 
 downsampler_ratio = "++downsampler_ratio"
 downsampler_ratio_values = [1] * len(intensity_values)
+
+lr_muon = f"++{group_names.parameters_set}.lr_muon"
+lr_muon_values = [5e-6, 5e-6, 5e-6, 5e-6]
+lr_adam = f"++{group_names.parameters_set}.lr_adam"
+lr_adam_values = [3e-4, 3e-4, 1e-4, 3e-3]
 
 ratio_seed = "++ratio_seed"
 ratio_seed_value = 0
@@ -19,7 +24,7 @@ ratio_seed_value = 0
 intensity_seed = "++intensity_seed"
 intensity_seed_value = 0
 
-autofill_exceptions = [downsampler_ratio, intensity] # Exceptions for list values for operations done by Artificial Padder
+autofill_exceptions = [downsampler_ratio, intensity, lr_adam, lr_muon] # Exceptions for list values for operations done by Artificial Padder
 run_idx = "++run_idx"
 run_idx_value = 0
 seed = "++seed"
@@ -62,8 +67,8 @@ adam_overrides = {
     f"{group_names.gradient_accumulator_schedule}": shared_config_names.experiment,
     f"{group_names.schedulers}": shared_config_names.adam,
 
-    f"++{group_names.parameters_set}.lr_muon": 0.008,
-    f"++{group_names.parameters_set}.lr_adam": 3e-4, # The meaning of Adam params and relationship to Muon is hard to parse - This is what we find may be implied 
+    f"{lr_muon}": [lr * 80 for lr in lr_adam_values],
+    f"{lr_adam}": lr_adam_values, # The meaning of Adam params and relationship to Muon is hard to parse - This is what we find may be implied 
     f"++{group_names.parameters_set}.use_muon": "False",
     f"++{group_names.parameters_set}.momentum_muon": 0.95,
     f"++{group_names.parameters_set}.beta_1_adam": 0.9,
@@ -104,8 +109,8 @@ muon_overrides = {
     f"{group_names.gradient_accumulator_schedule}": shared_config_names.experiment,
     f"{group_names.schedulers}": shared_config_names.muon,
 
-    f"++{group_names.parameters_set}.lr_muon": 0.008,
-    f"++{group_names.parameters_set}.lr_adam": 3e-4, 
+    f"{lr_muon}": lr_muon_values,
+    f"{lr_adam}": lr_adam_values,
     f"++{group_names.parameters_set}.use_muon": "False",
     f"++{group_names.parameters_set}.momentum_muon": 0.95,
     f"++{group_names.parameters_set}.beta_1_adam": 0.9,
