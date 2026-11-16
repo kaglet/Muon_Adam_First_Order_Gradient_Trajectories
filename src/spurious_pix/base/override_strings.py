@@ -111,7 +111,7 @@ muon_overrides = {
 
     f"{lr_muon}": lr_muon_values,
     f"{lr_adam}": lr_adam_values,
-    f"++{group_names.parameters_set}.use_muon": "False",
+    f"++{group_names.parameters_set}.use_muon": "True",
     f"++{group_names.parameters_set}.momentum_muon": 0.95,
     f"++{group_names.parameters_set}.beta_1_adam": 0.9,
     f"++{group_names.parameters_set}.beta_2_adam": 0.999,

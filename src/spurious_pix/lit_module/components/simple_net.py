@@ -17,7 +17,9 @@ def init_modules_weights(modules: Iterator[Module]) -> None:
                 nn.init.zeros_(layer.bias)
 
         return True
-    
+
+    # Ideally this should be recursive but we promise only 1 level of sequential at the top
+    # This makes the code slightly more convoluted than needed but better for our scope
     for layer in modules:
         if type(layer) == nn.Sequential:
             for layer in modules:
