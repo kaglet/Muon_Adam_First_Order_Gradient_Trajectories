@@ -14,7 +14,7 @@ downsampler_ratio = "++downsampler_ratio"
 downsampler_ratio_values = [1] * len(intensity_values)
 
 lr_muon = f"++{group_names.parameters_set}.lr_muon"
-lr_muon_values = [5e-6, 5e-6, 5e-6, 5e-6]
+lr_muon_values = [1e-1] * 4
 lr_adam = f"++{group_names.parameters_set}.lr_adam"
 lr_adam_values = [3e-4, 3e-4, 1e-4, 3e-3]
 
@@ -67,10 +67,10 @@ adam_overrides = {
     f"{group_names.gradient_accumulator_schedule}": shared_config_names.experiment,
     f"{group_names.schedulers}": shared_config_names.adam,
 
-    f"{lr_muon}": [lr * 80 for lr in lr_adam_values],
+    f"{lr_muon}": lr_muon,
     f"{lr_adam}": lr_adam_values, # The meaning of Adam params and relationship to Muon is hard to parse - This is what we find may be implied 
     f"++{group_names.parameters_set}.use_muon": "False",
-    f"++{group_names.parameters_set}.momentum_muon": 0.95,
+    f"++{group_names.parameters_set}.momentum_muon": 0.9,
     f"++{group_names.parameters_set}.beta_1_adam": 0.9,
     f"++{group_names.parameters_set}.beta_2_adam": 0.999,
     f"++{group_names.parameters_set}.nesterov": "False",
@@ -112,13 +112,13 @@ muon_overrides = {
     f"{lr_muon}": lr_muon_values,
     f"{lr_adam}": lr_adam_values,
     f"++{group_names.parameters_set}.use_muon": "True",
-    f"++{group_names.parameters_set}.momentum_muon": 0.95,
+    f"++{group_names.parameters_set}.momentum_muon": 0.9,
     f"++{group_names.parameters_set}.beta_1_adam": 0.9,
-    f"++{group_names.parameters_set}.beta_2_adam": 0.999,
+    f"++{group_names.parameters_set}.beta_2_adam": 0.95,
     f"++{group_names.parameters_set}.nesterov": "False",
     f"++{group_names.parameters_set}.use_layer_recs": "False",
     f"++{group_names.parameters_set}.eps": 1e-8, # Not given
-    f"++{group_names.parameters_set}.w_decay_muon": 0.1,
+    f"++{group_names.parameters_set}.w_decay_muon": 0,
     f"++{group_names.parameters_set}.w_decay_adam": 0,
 
     f"++{group_names.trainer}.limit_train_batches": NO_LIMIT_TRAIN_BATCHES,
