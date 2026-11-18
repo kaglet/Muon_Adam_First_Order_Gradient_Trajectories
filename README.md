@@ -127,7 +127,7 @@ _Note_: Verification of the most important components is usually done in the fil
 
 ## Core Open Source Frameworks 
 
-This list may not yet be exhaustive. Other credits for smaller snippets where necessary are embedded in code with `@<username>`. This may be pytorch community member or github usernames. This will definitely be updated as is deserving. 
+This list may not yet be exhaustive. Other credits for smaller snippets where necessary are embedded in code with `@<username>`. This may be pytorch community member or github usernames (updateable if something is missing). 
 
 - [Hydra-Zen](https://github.com/mit-ll-responsible-ai/hydra-zen): Uses Hydra -> OmegaConf in a pythonic form which made the ML training (or any pythonic setup) incredibly configurable, readable, and alterable beyond defaults. 
 - [Pytorch Lightning (PL)](https://github.com/lightning-ai/pytorch-lightning): Forced use of decoupled components and hooks. 
@@ -140,7 +140,7 @@ If you have are interested in the repo, feel free to contact and ask. This was d
 
 However (!) recommendations for future adaptation include: 
 - PyTorch Fabric for more complex experiments and scientific research, carrying over lessons learned in modularity from PL. 
-- Hydra-Zen usage is definitely recommended for configurability that scales with complexity. 
+- Hydra-Zen usage is definitely recommended for configuration that scales with complexity. 
 
 Please keep the below in mind...
 
