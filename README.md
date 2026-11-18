@@ -142,8 +142,6 @@ However (!) recommendations for future adaptation include:
 - PyTorch Fabric for more complex experiments and scientific research, carrying over lessons learned in modularity from PL. 
 - Hydra-Zen usage is definitely recommended for configuration that scales with complexity. 
 
-Please keep the below in mind...
-
 Admittedly the most confusing pipeline is the `viz_report_metrics` module. It uses pure matplotlib and some tricks to add more efficiency, control and reuse of fig/ax components to obtain a desired yet opinionated reporting result. Small things such as renaming confusing variable names may definitely assist clarity. 
 
 ## Future Plans
