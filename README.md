@@ -97,7 +97,7 @@ Inspect `pushable_outputs/cls_imb_s/report/mean/R_1/` for images of $R=1$ ratio 
 
 ## Usage 
 
-To replicate the current available experiments without issue the only hardware requirement is use of windows and a single GPU. Alternate instructions are present for runs on a linux cluster such as CHPC (also used). The following is for the class imbalance experiments. The spurious pixel experiments are a simpler yet similar case. The `./pixi.toml` file contains all tasks with a naming equivalency guide using comments. 
+To replicate the current available experiments without issue the only hardware requirement is use of windows and a single GPU. Alternate instructions are present for runs on a linux cluster such as CHPC (also used). The following is for the class imbalance experiments. The spurious pixel experiments are a simpler yet similar case. The `./pixi.toml` file contains all tasks with a naming equivalency guide using comments. A `Dockerfile` and `.dockerignore` at root exist and works fine. See "Future Updates" section for why I've excluded it from this official guide. 
 
 (1) Install [pixi](https://pixi.prefix.dev/latest/installation/) for env management = $2-5$min.
 
