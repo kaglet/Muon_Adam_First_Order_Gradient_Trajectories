@@ -149,4 +149,5 @@ Admittedly the most confusing pipeline is the `viz_report_metrics` module. It us
 ## Future Plans
 
 - ~~Progress is 95% done with the last 5% being entirely optional desire to push to `main` an experiment near complete in runs locally.~~ UPDATE: Progress is 100% done with inclusion of spurious pixel CNN. This completes extending findings from machine vision model types from [Exploring Gradient Oscillation in Deep Neural Network Training](https://ieeexplore-ieee-org.uplib.idm.oclc.org/document/10313361).
-- Reach out to authors of spurious pixel sub-experiment to verify applicability of my findings. 
+- Reach out to authors of spurious pixel sub-experiment to verify applicability of my findings.
+- Share docker e.g. for Linux (will be released as a side effect of learning from other docker side projects). Docker file exists at root and works but is really inefficient to run pytorch even under host resource sharing - may be my machine. 
